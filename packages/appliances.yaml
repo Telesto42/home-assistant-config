@@ -1,0 +1,11 @@
+template:
+  - binary_sensor:
+      - name: "Washing Machine Running"
+        unique_id: washing_machine_running
+        state: >
+          {% set state = states('sensor.pracka_aktualni_stav') | lower %}
+          {{ state in [
+            'běží',
+            'máchání',
+            'odstřeďování'
+          ] }}

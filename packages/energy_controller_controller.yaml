@@ -1,0 +1,242 @@
+# Energy controller - controller diagnostics package
+#
+# Purpose:
+# Exposes Core2 controller MQTT diagnostics in Home Assistant.
+
+input_boolean:
+  energy_controller_publish_debug_sources:
+    name: "Publikovat ladicí zdrojové stavy"
+    icon: mdi:bug-outline
+
+mqtt:
+  sensor:
+    - name: "Stav Energy Controlleru"
+      default_entity_id: sensor.energy_controller_health
+      unique_id: energy_controller_health
+      state_topic: home/controller/state
+      value_template: "{{ value_json.health | default('unknown') }}"
+      icon: mdi:heart-pulse
+
+    - name: "Aktivní priorita Energy Controlleru"
+      default_entity_id: sensor.energy_controller_active_priority
+      unique_id: energy_controller_active_priority
+      state_topic: home/controller/state
+      value_template: "{{ value_json.active_priority | default('unknown') }}"
+      icon: mdi:format-list-numbered
+
+    - name: "Režim vytápění Energy Controlleru"
+      default_entity_id: sensor.energy_controller_heating_mode
+      unique_id: energy_controller_heating_mode
+      state_topic: home/controller/state
+      value_template: "{{ value_json.heating.mode | default('unknown') }}"
+      icon: mdi:heating-coil
+
+    - name: "Důvod vytápění Energy Controlleru"
+      default_entity_id: sensor.energy_controller_heating_reason
+      unique_id: energy_controller_heating_reason
+      state_topic: home/controller/state
+      value_template: "{{ value_json.heating.reason | default('unknown') }}"
+      icon: mdi:text-box-outline
+
+    - name: "Režim bazénu Energy Controlleru"
+      default_entity_id: sensor.energy_controller_pool_mode
+      unique_id: energy_controller_pool_mode
+      state_topic: home/controller/state
+      value_template: "{{ value_json.pool.mode | default('unknown') }}"
+      icon: mdi:pool
+
+    - name: "Důvod bazénu Energy Controlleru"
+      default_entity_id: sensor.energy_controller_pool_reason
+      unique_id: energy_controller_pool_reason
+      state_topic: home/controller/state
+      value_template: "{{ value_json.pool.reason | default('unknown') }}"
+      icon: mdi:text-box-outline
+
+    - name: "Stáří dat energie Energy Controlleru"
+      default_entity_id: sensor.energy_controller_energy_data_age
+      unique_id: energy_controller_energy_data_age
+      state_topic: home/controller/state
+      value_template: "{{ value_json.data_age_sec.energy | default(0) }}"
+      unit_of_measurement: "s"
+      state_class: measurement
+      icon: mdi:timer-outline
+
+    - name: "Stáří dat TUV Energy Controlleru"
+      default_entity_id: sensor.energy_controller_tuv_data_age
+      unique_id: energy_controller_tuv_data_age
+      state_topic: home/controller/state
+      value_template: "{{ value_json.data_age_sec.tuv | default(0) }}"
+      unit_of_measurement: "s"
+      state_class: measurement
+      icon: mdi:timer-outline
+
+    - name: "Stáří dat bazénu Energy Controlleru"
+      default_entity_id: sensor.energy_controller_pool_data_age
+      unique_id: energy_controller_pool_data_age
+      state_topic: home/controller/state
+      value_template: "{{ value_json.data_age_sec.pool | default(0) }}"
+      unit_of_measurement: "s"
+      state_class: measurement
+      icon: mdi:timer-outline
+
+    - name: "Stáří dat vytápění Energy Controlleru"
+      default_entity_id: sensor.energy_controller_heating_data_age
+      unique_id: energy_controller_heating_data_age
+      state_topic: home/controller/state
+      value_template: "{{ value_json.data_age_sec.heating | default(0) }}"
+      unit_of_measurement: "s"
+      state_class: measurement
+      icon: mdi:timer-outline
+
+    - name: "Baterie Core2"
+      default_entity_id: sensor.energy_controller_core2_battery
+      unique_id: energy_controller_core2_battery
+      state_topic: home/controller/state
+      value_template: "{{ value_json.core2.battery_level | default(none) }}"
+      unit_of_measurement: "%"
+      device_class: battery
+      state_class: measurement
+
+  binary_sensor:
+    - name: "Energy Controller online"
+      default_entity_id: binary_sensor.energy_controller_online
+      unique_id: energy_controller_online
+      state_topic: home/controller/availability
+      payload_on: "online"
+      payload_off: "offline"
+      device_class: connectivity
+
+    - name: "Energy Controller degradovaný"
+      default_entity_id: binary_sensor.energy_controller_degraded
+      unique_id: energy_controller_degraded
+      state_topic: home/controller/state
+      value_template: "{{ value_json.degraded | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: problem
+
+    - name: "Energy Controller MQTT připojen"
+      default_entity_id: binary_sensor.energy_controller_mqtt_connected
+      unique_id: energy_controller_mqtt_connected
+      state_topic: home/controller/state
+      value_template: "{{ value_json.mqtt_connected | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: connectivity
+
+    - name: "Core2 se nabíjí"
+      default_entity_id: binary_sensor.energy_controller_core2_charging
+      unique_id: energy_controller_core2_charging
+      state_topic: home/controller/state
+      value_template: "{{ value_json.core2.charging | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: battery_charging
+
+    - name: "Displej Energy Controlleru zapnutý"
+      default_entity_id: binary_sensor.energy_controller_display_awake
+      unique_id: energy_controller_display_awake
+      state_topic: home/controller/state
+      value_template: "{{ value_json.display_awake | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      icon: mdi:monitor
+
+    - name: "Data energie Energy Controlleru zastaralá"
+      default_entity_id: binary_sensor.energy_controller_energy_stale
+      unique_id: energy_controller_energy_stale
+      state_topic: home/controller/state
+      value_template: "{{ value_json.stale.energy | default(true) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: problem
+
+    - name: "Data TUV Energy Controlleru zastaralá"
+      default_entity_id: binary_sensor.energy_controller_tuv_stale
+      unique_id: energy_controller_tuv_stale
+      state_topic: home/controller/state
+      value_template: "{{ value_json.stale.tuv | default(true) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: problem
+
+    - name: "Data bazénu Energy Controlleru zastaralá"
+      default_entity_id: binary_sensor.energy_controller_pool_stale
+      unique_id: energy_controller_pool_stale
+      state_topic: home/controller/state
+      value_template: "{{ value_json.stale.pool | default(true) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: problem
+
+    - name: "Data vytápění Energy Controlleru zastaralá"
+      default_entity_id: binary_sensor.energy_controller_heating_stale
+      unique_id: energy_controller_heating_stale
+      state_topic: home/controller/state
+      value_template: "{{ value_json.stale.heating | default(true) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: problem
+
+    - name: "Požadavek pokojového termostatu Energy Controlleru"
+      default_entity_id: binary_sensor.energy_controller_room_thermostat_request
+      unique_id: energy_controller_room_thermostat_request
+      state_topic: home/controller/state
+      value_template: "{{ value_json.heating.room_thermostat_request | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      icon: mdi:thermostat
+
+    - name: "Požadavek termostatu TUV Energy Controlleru"
+      default_entity_id: binary_sensor.energy_controller_dhw_thermostat_request
+      unique_id: energy_controller_dhw_thermostat_request
+      state_topic: home/controller/state
+      value_template: "{{ value_json.heating.dhw_thermostat_request | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      icon: mdi:water-thermometer
+
+    - name: "PV boost Energy Controlleru"
+      default_entity_id: binary_sensor.energy_controller_pv_boost_request
+      unique_id: energy_controller_pv_boost_request
+      state_topic: home/controller/state
+      value_template: "{{ value_json.heating.pv_boost_request | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      icon: mdi:solar-power-variant
+
+    - name: "Zdroj energie Energy Controlleru dostupný"
+      default_entity_id: binary_sensor.energy_controller_energy_source_available
+      unique_id: energy_controller_energy_source_available
+      state_topic: home/controller/state
+      value_template: "{{ value_json.source_available.energy | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: connectivity
+
+    - name: "Zdroj TUV Energy Controlleru dostupný"
+      default_entity_id: binary_sensor.energy_controller_tuv_source_available
+      unique_id: energy_controller_tuv_source_available
+      state_topic: home/controller/state
+      value_template: "{{ value_json.source_available.tuv | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: connectivity
+
+    - name: "Zdroj bazénu Energy Controlleru dostupný"
+      default_entity_id: binary_sensor.energy_controller_pool_source_available
+      unique_id: energy_controller_pool_source_available
+      state_topic: home/controller/state
+      value_template: "{{ value_json.source_available.pool | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: connectivity
+
+    - name: "Zdroj vytápění Energy Controlleru dostupný"
+      default_entity_id: binary_sensor.energy_controller_heating_source_available
+      unique_id: energy_controller_heating_source_available
+      state_topic: home/controller/state
+      value_template: "{{ value_json.source_available.heating | default(false) | lower }}"
+      payload_on: "true"
+      payload_off: "false"
+      device_class: connectivity

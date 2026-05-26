@@ -1,0 +1,255 @@
+{
+    "result": [
+        {
+            "active_time": 1691610432,
+            "biz_type": 0,
+            "category": "ggq",
+            "create_time": 1691412099,
+            "icon": "smart/icon/ay1501578980436KOuNc/032c980d58400f6379fff92c86bf1389.jpg",
+            "id": "bfabcevalpjwsfpz",
+            "ip": "",
+            "lat": "49.3600",
+            "local_key": "VU*W2'bTu6py-<UD",
+            "lon": "17.8700",
+            "model": "SGW02",
+            "name": "Smart Dual Water Timer",
+            "node_id": "24c3e53ed66b925e",
+            "online": true,
+            "owner_id": "49786372",
+            "product_id": "hfgdqhho",
+            "product_name": "Smart Dual Water Timer",
+            "status": [
+                {
+                    "code": "battery_percentage",
+                    "value": 100
+                },
+                {
+                    "code": "normal_timer",
+                    "value": "AA=="
+                },
+                {
+                    "code": "countdown_2",
+                    "value": 10
+                },
+                {
+                    "code": "switch_2",
+                    "value": true
+                },
+                {
+                    "code": "switch_1",
+                    "value": true
+                },
+                {
+                    "code": "countdown_1",
+                    "value": 9
+                },
+                {
+                    "code": "use_time_2",
+                    "value": 63
+                },
+                {
+                    "code": "use_time_1",
+                    "value": 2
+                }
+            ],
+            "sub": true,
+            "time_zone": "+02:00",
+            "uid": "eu1643398357454dyQYb",
+            "update_time": 1691611080,
+            "uuid": "24c3e53ed66b925e"
+        },
+        {
+            "active_time": 1691609640,
+            "biz_type": 0,
+            "category": "qn",
+            "create_time": 1663183730,
+            "icon": "smart/icon/ay1557826918513Qbvsz/ec2058ac10bd04e24188064c0c1ad886.png",
+            "id": "bf1afa0914a84eb33abda6",
+            "ip": "213.194.250.140",
+            "lat": "49.3600",
+            "local_key": "F]R*<N8~X|os.j0'",
+            "lon": "17.8700",
+            "model": "wonderwall art smart",
+            "name": "Wonderwall Art Downstairs",
+            "online": true,
+            "owner_id": "49786372",
+            "product_id": "cl2wgyhohpjjjuzu",
+            "product_name": "Wonderwall Art Smart ",
+            "status": [
+                {
+                    "code": "switch",
+                    "value": false
+                },
+                {
+                    "code": "temp_set",
+                    "value": 180
+                },
+                {
+                    "code": "temp_current",
+                    "value": 220
+                }
+            ],
+            "sub": false,
+            "time_zone": "+02:00",
+            "uid": "eu1643398357454dyQYb",
+            "update_time": 1691610994,
+            "uuid": "72edf248f19645cd"
+        },
+        {
+            "active_time": 1691609676,
+            "biz_type": 0,
+            "category": "dj",
+            "create_time": 1677011211,
+            "icon": "smart/icon/ay1544451161651vQPZq/05307e479788dcefc56e7f69b6297b57.png",
+            "id": "bf49ded1e762181346buhn",
+            "ip": "213.194.250.140",
+            "lat": "49.3600",
+            "local_key": "d-56|<`5B*fnUE%[",
+            "lon": "17.8700",
+            "model": "P4",
+            "name": "Inteligentn\u00ed \u017e\u00e1rovka P4",
+            "online": true,
+            "owner_id": "49786372",
+            "product_id": "xrwiahe1g51fxihd",
+            "product_name": "Smart bulb P4",
+            "status": [
+                {
+                    "code": "switch_led",
+                    "value": false
+                },
+                {
+                    "code": "work_mode",
+                    "value": "white"
+                },
+                {
+                    "code": "bright_value_v2",
+                    "value": 1000
+                },
+                {
+                    "code": "temp_value_v2",
+                    "value": 0
+                },
+                {
+                    "code": "colour_data_v2",
+                    "value": "{\"h\":0,\"s\":1000,\"v\":1000}"
+                },
+                {
+                    "code": "scene_data_v2",
+                    "value": "{\"scene_num\":1,\"scene_units\":[{\"bright\":200,\"h\":0,\"s\":0,\"temperature\":0,\"unit_change_mode\":\"static\",\"unit_gradient_duration\":13,\"unit_switch_duration\":14,\"v\":0}]}"
+                },
+                {
+                    "code": "countdown_1",
+                    "value": 0
+                },
+                {
+                    "code": "music_data",
+                    "value": ""
+                },
+                {
+                    "code": "control_data",
+                    "value": ""
+                },
+                {
+                    "code": "rhythm_mode",
+                    "value": "AAAAAAA="
+                },
+                {
+                    "code": "power_memory",
+                    "value": "AAEAAAPoA+gD6AAA"
+                }
+            ],
+            "sub": false,
+            "time_zone": "+02:00",
+            "uid": "eu1643398357454dyQYb",
+            "update_time": 1691610991,
+            "uuid": "5277eb05dd976db3"
+        },
+        {
+            "active_time": 1691609691,
+            "biz_type": 0,
+            "category": "dj",
+            "create_time": 1671572742,
+            "icon": "smart/icon/ay1544595242978Akat0/a3c2e985445c0cbbd890208b927fb4aa.png",
+            "id": "bf46631816008facdbv2te",
+            "ip": "213.194.250.140",
+            "lat": "49.3600",
+            "local_key": "8UDP$Junqq<nSK]H",
+            "lon": "17.8700",
+            "model": "",
+            "name": "2.4GHz Gateway",
+            "online": true,
+            "owner_id": "49786372",
+            "product_id": "gj5wvacjndlfkv92",
+            "product_name": "2.4GHz Gateway",
+            "status": [
+                {
+                    "code": "switch_led",
+                    "value": false
+                },
+                {
+                    "code": "work_mode",
+                    "value": "white"
+                },
+                {
+                    "code": "bright_value_v2",
+                    "value": 464
+                },
+                {
+                    "code": "temp_value_v2",
+                    "value": 494
+                },
+                {
+                    "code": "colour_data_v2",
+                    "value": "{\"h\":360,\"s\":1000,\"v\":460}"
+                },
+                {
+                    "code": "countdown_1",
+                    "value": 0
+                },
+                {
+                    "code": "control_data",
+                    "value": ""
+                }
+            ],
+            "sub": false,
+            "time_zone": "+02:00",
+            "uid": "eu1643398357454dyQYb",
+            "update_time": 1691610990,
+            "uuid": "e0536fd7d31f00c2"
+        },
+        {
+            "active_time": 1691609654,
+            "biz_type": 0,
+            "category": "wg2",
+            "create_time": 1691411930,
+            "icon": "smart/icon/ay1501578980436KOuNc/3a65a8a56bc079f92d8ff0b52d1a90c5.png",
+            "id": "bfd3b1a811268beccfcufd",
+            "ip": "213.194.250.140",
+            "lat": "49.3600",
+            "local_key": "VU*W2'bTu6py-<UD",
+            "lon": "17.8700",
+            "model": "WG02",
+            "name": "Gateway",
+            "online": true,
+            "owner_id": "49786372",
+            "product_id": "tmwhss6ntjfc7prs",
+            "product_name": "Gateway",
+            "status": [],
+            "sub": true,
+            "time_zone": "+02:00",
+            "uid": "eu1643398357454dyQYb",
+            "update_time": 1691610413,
+            "uuid": "55425a4ec99c72af"
+        }
+    ],
+    "success": true,
+    "t": 1691615440580,
+    "tid": "31b7119636f911eeb3f09e6a0abc163a",
+    "file": {
+        "name": "tuya-raw.json",
+        "description": "Full raw list of Tuya devices.",
+        "account": "arpxsekrjy8vp8mmu9kk",
+        "date": "2023-08-09T23:10:40.616805",
+        "tinytuya": "1.12.9"
+    }
+}

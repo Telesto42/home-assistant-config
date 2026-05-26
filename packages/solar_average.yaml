@@ -1,0 +1,45 @@
+template:
+  - sensor:
+      - name: Solar total power
+        unique_id: solax_total_pv_power
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >
+          {{ states('sensor.solax_inverter_pv1_power') | float(0)
+           + states('sensor.solax_inverter_pv2_power') | float(0) }}
+  - sensor:
+      - name: Solar surplus power
+        unique_id: solar_surplus_power
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        state: >
+          {{ states('sensor.solar_power_avg_5m')|float -
+             states('sensor.solax_inverter_load_generator_power')|float }}
+
+sensor:
+
+  - platform: statistics
+    name: Solar power avg 5m
+    unique_id: solar_power_avg_5m
+    entity_id: sensor.solax_total_pv_power
+    state_characteristic: mean
+    max_age:
+      minutes: 5
+
+  - platform: statistics
+    name: Solar power avg 15m
+    unique_id: solar_power_avg_15m
+    entity_id: sensor.solax_total_pv_power
+    state_characteristic: mean
+    max_age:
+      minutes: 15
+
+  - platform: statistics
+    name: Solar power avg 30m
+    unique_id: solar_power_avg_30m
+    entity_id: sensor.solax_total_pv_power
+    state_characteristic: mean
+    max_age:
+      minutes: 30

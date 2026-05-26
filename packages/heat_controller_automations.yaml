@@ -1,0 +1,190 @@
+# packages/living_room.yaml
+automation:
+  - alias: Heat Controller - publikovat teplotu AKU
+    id: heat_controller_publish_buf_temp
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.tasmota_ds18b20_4_temperature
+      - trigger: time_pattern
+        minutes: /1
+    conditions:
+      - condition: template
+        value_template: |
+          {{ states('sensor.tasmota_ds18b20_4_temperature') | is_number }}
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: heat-controller/sensor/buf_current_temp
+          payload: "{{ states('sensor.tasmota_ds18b20_4_temperature') | float }}"
+          retain: true
+    mode: restart
+
+  - alias: Heat Controller - publikovat teplotu TUV
+    id: heat_controller_publish_hwg_temp
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.tasmota_ds18b20_temperature
+      - trigger: time_pattern
+        minutes: /1
+    conditions:
+      - condition: template
+        value_template: |
+          {{ states('sensor.tasmota_ds18b20_temperature') | is_number }}
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: heat-controller/sensor/dhw_current_temp1
+          payload: "{{ states('sensor.tasmota_ds18b20_temperature') | float }}"
+          retain: true
+    mode: restart
+
+  - alias: Heat Controller - publikovat venkovní teplotu
+    id: heat_controller_publish_outdoor_temp
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.outside_north_temperature
+      - trigger: time_pattern
+        minutes: /1
+    conditions:
+      - condition: template
+        value_template: |
+          {{ states('sensor.outside_north_temperature') | is_number }}
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: heat-controller/sensor/outdoor_temp
+          payload: "{{ states('sensor.outside_north_temperature') | float }}"
+          retain: true
+    mode: restart
+
+  - alias: Heat Controller - publikovat vnitřní teplotu
+    id: heat_controller_publish_indoor_temp
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.technical_room_lights_temperature
+      - trigger: time_pattern
+        minutes: /1
+    conditions:
+      - condition: template
+        value_template: |
+          {{ states('sensor.technical_room_lights_temperature') | is_number }}
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: heat-controller/sensor/indoor_temp
+          payload: "{{ states('sensor.technical_room_lights_temperature') | float }}"
+          retain: true
+    mode: restart
+
+  - alias: Heat Controller - publikovat teplotu bazénu
+    id: heat_controller_publish_pool_temp
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.pool_temperature_temperature
+      - trigger: time_pattern
+        minutes: /1
+    conditions:
+      - condition: template
+        value_template: |
+          {{ states('sensor.pool_temperature_temperature') | is_number }}
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: heat-controller/sensor/pool_temp
+          payload: "{{ states('sensor.pool_temperature_temperature') | float }}"
+          retain: true
+    mode: restart
+
+  - alias: Heat Controller - publikovat výrobu FVE
+    id: heat_controller_publish_pv_power
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.solax_total_pv_power
+      - trigger: time_pattern
+        minutes: /1
+    conditions:
+      - condition: template
+        value_template: |
+          {{ states('sensor.solax_total_pv_power') | is_number }}
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: heat-controller/sensor/pv_power
+          payload: "{{ states('sensor.solax_total_pv_power') | float }}"
+          retain: true
+    mode: restart
+
+  - alias: Heat Controller - publikovat spotřebu
+    id: heat_controller_publish_home_consumption
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.solax_inverter_load_generator_power
+      - trigger: time_pattern
+        minutes: /1
+    conditions:
+      - condition: template
+        value_template: |
+          {{ states('sensor.solax_inverter_load_generator_power') | is_number }}
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: heat-controller/sensor/home_consumption
+          payload: "{{ states('sensor.solax_inverter_load_generator_power') | float }}"
+          retain: true
+    mode: restart
+
+  - alias: Heat Controller - publikovat přetok
+    id: heat_controller_publish_grid_export
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.solax_inverter_grid_power
+      - trigger: time_pattern
+        minutes: /1
+    conditions:
+      - condition: template
+        value_template: |
+          {{ states('sensor.solax_inverter_grid_power') | is_number }}
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: heat-controller/sensor/grid_export
+          payload: "{{ [(states('sensor.solax_inverter_grid_power') | float), 0] | max }}"
+          retain: true
+    mode: restart
+
+  - alias: Heat Controller - publikovat kapacitu baterie
+    id: heat_controller_publish_pv_battery_soc
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.solax_inverter_battery_remaining_capacity
+      - trigger: time_pattern
+        minutes: /1
+    conditions:
+      - condition: template
+        value_template: |
+          {{ states('sensor.solax_inverter_battery_remaining_capacity') | is_number }}
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: heat-controller/sensor/pv_battery_soc
+          payload: "{{ states('sensor.solax_inverter_battery_remaining_capacity') | float }}"
+          retain: true
+    mode: restart

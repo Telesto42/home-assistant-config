@@ -1,0 +1,121 @@
+switch: !include smartDEN_IP_16R.MQTT/switches.yaml
+
+binary_sensor:
+- name: "Large Room Heater Enabled"
+  unique_id: "largeroom_heater_enabled"
+  state_topic: "devices/largeroom_heater/status"
+  value_template: "{{ value_json.enabled }}"
+  payload_on: "True"
+  payload_off: "False"
+  qos: 1
+  expire_after: 900
+  device_class: power
+  device:
+    identifiers: ["largeroom_heater"]
+    name: "Large Room Heater"
+    model: "Atom PWM Base"
+    manufacturer: "M5Stack"
+
+sensor:
+  - name: "Large Room Heater Duty"
+    unique_id: "largeroom_heater_duty"
+    state_topic: "devices/largeroom_heater/status"
+    value_template: "{{ value_json.duty }}"
+    unit_of_measurement: "%"
+    qos: 1
+    expire_after: 900
+    device:
+      identifiers: ["largeroom_heater"]
+      name: "Large Room Heater"
+      model: "Atom PWM Base"
+      manufacturer: "M5Stack"
+
+  - name: "Large Room Heater Integral"
+    unique_id: "largeroom_heater_integral"
+    state_topic: "devices/largeroom_heater/status"
+    value_template: "{{ value_json.integral }}"
+    # no unit (dimensionless internal integrator value)
+    qos: 1
+    expire_after: 900
+    device:
+      identifiers: ["largeroom_heater"]
+      name: "Large Room Heater"
+      model: "Atom PWM Base"
+      manufacturer: "M5Stack"
+
+  - name: "Large Room Heater Temp"
+    unique_id: "largeroom_heater_temp"
+    state_topic: "devices/largeroom_heater/status"
+    value_template: "{{ value_json.temp }}"
+    unit_of_measurement: "°C"
+    qos: 1
+    expire_after: 900
+    device:
+      identifiers: ["largeroom_heater"]
+      name: "Large Room Heater"
+      model: "Atom PWM Base"
+      manufacturer: "M5Stack"
+
+  - name: "Large Room Heater Setpoint"
+    unique_id: "largeroom_heater_setpoint"
+    state_topic: "devices/largeroom_heater/status"
+    value_template: "{{ value_json.setpoint }}"
+    unit_of_measurement: "°C"
+    qos: 1
+    expire_after: 900
+    device:
+      identifiers: ["largeroom_heater"]
+      name: "Large Room Heater"
+      model: "Atom PWM Base"
+      manufacturer: "M5Stack"
+
+  - name: "Large Room Atom CO2"
+    unique_id: large_room_co2
+    unit_of_measurement: "ppm"
+    device_class: "carbon_dioxide"
+    state_topic: "m5stack/atomlite/large_room_co2"
+    value_template: "{{value_json.co2 | round(0)}}"
+    device:
+      identifiers: "large_room_atom"
+      name: "Large Room Atom"
+  - name: "Large Room Atom Temperature"
+    unique_id: large_room_temperature
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_topic: "m5stack/atomlite/large_room_co2"
+    value_template: "{{value_json.temperature | round(1)}}"
+    device:
+      identifiers: "large_room_atom"
+      name: "Large Room Atom"
+  - name: "Large Room Atom Humidity"
+    unique_id: large_room_humidity
+    unit_of_measurement: "%"
+    device_class: "humidity"
+    state_topic: "m5stack/atomlite/large_room_co2"
+    value_template: "{{value_json.humidity | round(1)}}"
+    device:
+      identifiers: "large_room_atom"
+      name: "Large Room Atom"
+  - name: "Large Room Atom Battery"
+    unique_id: large_room_battery
+    unit_of_measurement: "%"
+    device_class: "battery"
+    state_topic: "m5stack/atomlite/large_room_co2"
+    value_template: "{{value_json.battery | round(1)}}"
+    device:
+      identifiers: "large_room_atom"
+      name: "Large Room Atom"
+  - name: "Large Room Atom Gas Resistance"
+    unique_id: large_room_gas_resistance
+    unit_of_measurement: "kOhm"
+    state_topic: "m5stack/atomlite/large_room_co2"
+    value_template: "{{value_json.gas_resistance | round(1)}}"
+    device:
+      identifiers: "large_room_atom"
+      name: "Large Room Atom"
+  - name: "Actual Weather"
+    unique_id: node-red-actual-weather
+    state_topic: "nodered/actual-weather"
+    device:
+      identifiers: "node-red-weather"
+      name: "Node Red Weather"

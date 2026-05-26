@@ -1,0 +1,72 @@
+template:
+  - sensor:
+
+      - name: "Heat Pump Heater Power"
+        unique_id: heat_pump_heater_power
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        icon: mdi:water-boiler
+
+        state: >
+          {% set a = states('sensor.heat_pump_measurement_channel_a_power') | float(0) %}
+          {% set b = states('sensor.heat_pump_measurement_channel_b_power') | float(0) %}
+          {% set c = states('sensor.heat_pump_measurement_channel_c_power') | float(0) %}
+
+          {% set avg_ab = (a + b) / 2 %}
+          {% set diff = c - avg_ab %}
+
+          {% if diff > 500 %}
+            {{ (diff - 10) | round(0) }}
+          {% else %}
+            0
+          {% endif %}
+
+        attributes:
+          channel_a_power: >
+            {{ states('sensor.heat_pump_measurement_channel_a_power') }}
+          channel_b_power: >
+            {{ states('sensor.heat_pump_measurement_channel_b_power') }}
+          channel_c_power: >
+            {{ states('sensor.heat_pump_measurement_channel_c_power') }}
+          calculated_difference: >
+            {% set a = states('sensor.heat_pump_measurement_channel_a_power') | float(0) %}
+            {% set b = states('sensor.heat_pump_measurement_channel_b_power') | float(0) %}
+            {% set c = states('sensor.heat_pump_measurement_channel_c_power') | float(0) %}
+
+            {{ (c - ((a + b) / 2)) | round(0) }}
+
+      - name: "Heat Pump Compressor Power"
+        unique_id: heat_pump_compressor_power
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        icon: mdi:heat-pump
+
+        state: >
+          {% set a = states('sensor.heat_pump_measurement_channel_a_power') | float(0) %}
+          {% set b = states('sensor.heat_pump_measurement_channel_b_power') | float(0) %}
+          {% set c = states('sensor.heat_pump_measurement_channel_c_power') | float(0) %}
+
+          {% set avg_ab = (a + b) / 2 %}
+          {% set diff = c - avg_ab %}
+
+          {% if diff > 500 %}
+            {{ (a + b + c - diff + 10) | round(0) }}
+          {% else %}
+            {{ (a + b + c) | round(0) }}
+          {% endif %}
+
+      - name: "Heat Pump Total Power"
+        unique_id: heat_pump_total_power
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        icon: mdi:flash
+
+        state: >
+          {% set a = states('sensor.heat_pump_measurement_channel_a_power') | float(0) %}
+          {% set b = states('sensor.heat_pump_measurement_channel_b_power') | float(0) %}
+          {% set c = states('sensor.heat_pump_measurement_channel_c_power') | float(0) %}
+
+          {{ (a + b + c) | round(0) }}

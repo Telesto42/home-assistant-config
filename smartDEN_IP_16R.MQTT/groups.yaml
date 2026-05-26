@@ -1,0 +1,22 @@
+#######################################
+# Groups
+#######################################
+  relays:
+    name: Relays
+    entities:
+      - switch.relay_1
+      - switch.relay_2
+      - switch.relay_3
+      - switch.relay_4
+      - switch.relay_5
+      - switch.relay_6
+      - switch.relay_7
+      - switch.relay_8
+      - switch.relay_9
+      - switch.relay_10
+      - switch.relay_11
+      - switch.relay_12
+      - switch.relay_13
+      - switch.relay_14
+      - switch.relay_15
+      - switch.relay_16

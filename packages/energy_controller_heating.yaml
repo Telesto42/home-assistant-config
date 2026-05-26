@@ -1,0 +1,531 @@
+# Energy controller - Home Assistant -> MQTT heating state package
+#
+# Purpose:
+# Publishes one compact JSON package for M5Stack Core2:
+#
+#   home/heating/state
+#
+# This first version is read-only diagnostics for heating demand, pipe temperatures,
+# estimated heat pump state and anti-cycling.
+# Most technical entities are intentionally TODO placeholders.
+
+input_number:
+  heating_min_open_valves_for_heatpump:
+    name: "Minimální počet otevřených hlavic pro tepelné čerpadlo"
+    min: 1
+    max: 32
+    step: 1
+    icon: mdi:heat-pump-outline
+
+  heating_buffer_target_base_temp:
+    name: "Základní cílová teplota akumulační nádrže"
+    min: 20
+    max: 60
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-water
+
+  heating_heatpump_compressor_power_threshold:
+    name: "Příkon aktivního kompresoru TČ"
+    min: 200
+    max: 3000
+    step: 50
+    initial: 700
+    unit_of_measurement: "W"
+    icon: mdi:flash
+
+  heating_heatpump_standby_power_threshold:
+    name: "Příkon standby TČ"
+    min: 20
+    max: 500
+    step: 10
+    initial: 200
+    unit_of_measurement: "W"
+    icon: mdi:power-standby
+
+  heating_heatpump_start_power_threshold:
+    name: "Příkon startu TČ"
+    min: 800
+    max: 3000
+    step: 50
+    initial: 1400
+    unit_of_measurement: "W"
+    icon: mdi:ray-start-arrow
+
+  heating_heatpump_dhw_power_threshold:
+    name: "Příkon TUV režimu TČ"
+    min: 1000
+    max: 7000
+    step: 100
+    initial: 2500
+    unit_of_measurement: "W"
+    icon: mdi:water-boiler
+
+  heating_heatpump_min_stable_run_time:
+    name: "Minimální stabilní běh TČ"
+    min: 2
+    max: 60
+    step: 1
+    initial: 10
+    unit_of_measurement: "min"
+    icon: mdi:timer-check-outline
+
+  heating_heatpump_max_starts_per_hour:
+    name: "Maximum startů TČ za hodinu"
+    min: 1
+    max: 12
+    step: 1
+    initial: 3
+    unit_of_measurement: "startu"
+    icon: mdi:counter
+
+homeassistant:
+  customize:
+    sensor.heating_heatpump_starts_1h:
+      friendly_name: "Počet startů TČ za hodinu"
+    binary_sensor.heating_demand:
+      friendly_name: "Požadavek na vytápění"
+    binary_sensor.heating_heatpump_compressor_active:
+      friendly_name: "Kompresor TČ aktivní podle příkonu"
+    binary_sensor.heating_heatpump_standby_by_power:
+      friendly_name: "TČ standby podle příkonu"
+    binary_sensor.heating_heatpump_dhw_signature:
+      friendly_name: "Signatura TUV režimu TČ"
+    binary_sensor.heating_heatpump_heating_signature:
+      friendly_name: "Signatura topení TČ"
+    binary_sensor.heating_heatpump_cycling_risk:
+      friendly_name: "Riziko cyklování TČ"
+    binary_sensor.heating_heatpump_defrost_likely:
+      friendly_name: "Pravděpodobný defrost TČ"
+    sensor.heating_total_valves_count:
+      friendly_name: "Celkový počet topných hlavic"
+    sensor.heating_open_valves_count:
+      friendly_name: "Počet otevřených topných hlavic"
+    sensor.heating_open_valves_ratio:
+      friendly_name: "Podíl otevřených topných hlavic"
+    sensor.heating_heatpump_current_run_duration:
+      friendly_name: "Aktuální doba běhu TČ"
+    sensor.heating_heatpump_current_off_duration:
+      friendly_name: "Aktuální doba vypnutí TČ"
+    sensor.heating_heatpump_state_estimated:
+      friendly_name: "Odhadnutý stav TČ"
+
+sensor:
+  - platform: history_stats
+    name: "Heating heatpump starts 1h"
+    unique_id: heating_heatpump_starts_1h
+    entity_id: binary_sensor.heating_heatpump_compressor_active
+    state: "on"
+    type: count
+    start: "{{ now() - timedelta(hours=1) }}"
+    end: "{{ now() }}"
+
+binary_sensor:
+  - platform: trend
+    sensors:
+      heating_buffer_temp_rising:
+        friendly_name: "Teplota akumulace roste"
+        entity_id: sensor.tasmota_ds18b20_4_temperature
+        sample_duration: 600
+        min_gradient: 0.00033
+
+      heating_buffer_temp_falling_fast:
+        friendly_name: "Teplota akumulace rychle klesa"
+        entity_id: sensor.tasmota_ds18b20_4_temperature
+        sample_duration: 600
+        min_gradient: 0.00083
+        invert: true
+
+      heating_tuv_temp_rising:
+        friendly_name: "Teplota TUV roste"
+        entity_id: sensor.tasmota_ds18b20_temperature
+        sample_duration: 600
+        min_gradient: 0.00033
+
+group:
+  heating_valves:
+    name: "Topné hlavice"
+    entities:
+      - switch.hall_heating
+      - switch.locker_room_heating
+      - switch.livingroom_heating
+      - switch.kitchen_heating
+      - switch.office_heating
+      - switch.downstairs_hallway_heating
+      - switch.downstairs_bathroom_heating
+      - switch.upstairs_bathroom_heating
+      - switch.small_room_heating
+      - switch.large_room_heating
+      - switch.bedroom_heating
+      - switch.upstairs_hallway_north_heating
+      - switch.upstairs_hallway_south_heating
+      - switch.attic_east_heating
+
+template:
+  - binary_sensor:
+      - name: "Heating demand"
+        unique_id: heating_demand
+        state: >-
+          {% set valves = state_attr('group.heating_valves', 'entity_id') or [] %}
+          {{ valves | select('is_state', 'on') | list | count > 0 }}
+        availability: >-
+          {{ state_attr('group.heating_valves', 'entity_id') is not none }}
+
+      - name: "Heating heatpump compressor active"
+        unique_id: heating_heatpump_compressor_active
+        state: >-
+          {% set power = states('sensor.heat_pump_compressor_power') | float(0) %}
+          {% set threshold = states('input_number.heating_heatpump_compressor_power_threshold') | float(700) %}
+          {{ power > threshold }}
+        availability: >-
+          {{ states('sensor.heat_pump_compressor_power') not in ['unknown', 'unavailable', 'none', ''] }}
+        delay_on:
+          seconds: 20
+        delay_off:
+          seconds: 20
+
+      - name: "Heating heatpump standby by power"
+        unique_id: heating_heatpump_standby_by_power
+        state: >-
+          {% set power = states('sensor.heat_pump_compressor_power') | float(0) %}
+          {% set threshold = states('input_number.heating_heatpump_standby_power_threshold') | float(200) %}
+          {{ power < threshold }}
+        availability: >-
+          {{ states('sensor.heat_pump_compressor_power') not in ['unknown', 'unavailable', 'none', ''] }}
+        delay_on:
+          seconds: 20
+
+      - name: "Heating heatpump dhw signature"
+        unique_id: heating_heatpump_dhw_signature
+        state: >-
+          {% set power = states('sensor.heat_pump_compressor_power') | float(0) %}
+          {% set threshold = states('input_number.heating_heatpump_dhw_power_threshold') | float(2500) %}
+          {{
+            power > threshold
+            and (
+              is_state('binary_sensor.heating_tuv_temp_rising', 'on')
+              or is_state('binary_sensor.heating_buffer_temp_falling_fast', 'on')
+            )
+          }}
+        availability: >-
+          {{ states('sensor.heat_pump_compressor_power') not in ['unknown', 'unavailable', 'none', ''] }}
+        delay_on:
+          minutes: 2
+        delay_off:
+          minutes: 2
+
+      - name: "Heating heatpump heating signature"
+        unique_id: heating_heatpump_heating_signature
+        state: >-
+          {{
+            is_state('binary_sensor.heating_heatpump_compressor_active', 'on')
+            and is_state('binary_sensor.heating_buffer_temp_rising', 'on')
+            and is_state('binary_sensor.heating_heatpump_dhw_signature', 'off')
+          }}
+        availability: >-
+          {{ states('binary_sensor.heating_heatpump_compressor_active') not in ['unknown', 'unavailable', 'none', ''] }}
+        delay_on:
+          minutes: 2
+        delay_off:
+          minutes: 2
+
+      - name: "Heating heatpump cycling risk"
+        unique_id: heating_heatpump_cycling_risk
+        state: >-
+          {% set starts = states('sensor.heating_heatpump_starts_1h') | float(0) %}
+          {% set max_starts = states('input_number.heating_heatpump_max_starts_per_hour') | float(3) %}
+          {{ starts >= max_starts }}
+        availability: >-
+          {{ states('sensor.heating_heatpump_starts_1h') not in ['unknown', 'unavailable', 'none', ''] }}
+
+      - name: "Heating heatpump defrost likely"
+        unique_id: heating_heatpump_defrost_likely
+        state: >-
+          {% set power = states('sensor.heat_pump_compressor_power') | float(0) %}
+          {% set standby = states('input_number.heating_heatpump_standby_power_threshold') | float(200) %}
+          {{
+            is_state('binary_sensor.heating_heatpump_compressor_active', 'off')
+            and power > standby
+            and power < 1200
+            and is_state('binary_sensor.heating_buffer_temp_falling_fast', 'on')
+            and is_state('binary_sensor.heating_heatpump_dhw_signature', 'off')
+          }}
+        availability: >-
+          {{ states('sensor.heat_pump_compressor_power') not in ['unknown', 'unavailable', 'none', ''] }}
+        delay_on:
+          seconds: 30
+        delay_off:
+          minutes: 3
+
+  - sensor:
+      - name: "Heating total valves count"
+        unique_id: heating_total_valves_count
+        state: >-
+          {% set valves = state_attr('group.heating_valves', 'entity_id') or [] %}
+          {{ valves | count }}
+        availability: >-
+          {{ state_attr('group.heating_valves', 'entity_id') is not none }}
+
+      - name: "Heating open valves count"
+        unique_id: heating_open_valves_count
+        state: >-
+          {% set valves = state_attr('group.heating_valves', 'entity_id') or [] %}
+          {{ valves | select('is_state', 'on') | list | count }}
+        availability: >-
+          {{ state_attr('group.heating_valves', 'entity_id') is not none }}
+
+      - name: "Heating open valves ratio"
+        unique_id: heating_open_valves_ratio
+        state: >-
+          {% set valves = state_attr('group.heating_valves', 'entity_id') or [] %}
+          {% set total = valves | count %}
+          {% set open = valves | select('is_state', 'on') | list | count %}
+          {{ ((open / total) | round(3)) if total > 0 else 0 }}
+        availability: >-
+          {{ state_attr('group.heating_valves', 'entity_id') is not none }}
+
+      - name: "Heating heatpump current run duration"
+        unique_id: heating_heatpump_current_run_duration_min
+        unit_of_measurement: "min"
+        state: >-
+          {% if is_state('binary_sensor.heating_heatpump_compressor_active', 'on') %}
+            {{ ((as_timestamp(now()) - as_timestamp(states.binary_sensor.heating_heatpump_compressor_active.last_changed)) / 60) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+        availability: >-
+          {{ states('binary_sensor.heating_heatpump_compressor_active') not in ['unknown', 'unavailable', 'none', ''] }}
+
+      - name: "Heating heatpump current off duration"
+        unique_id: heating_heatpump_current_off_duration_min
+        unit_of_measurement: "min"
+        state: >-
+          {% if is_state('binary_sensor.heating_heatpump_compressor_active', 'off') %}
+            {{ ((as_timestamp(now()) - as_timestamp(states.binary_sensor.heating_heatpump_compressor_active.last_changed)) / 60) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+        availability: >-
+          {{ states('binary_sensor.heating_heatpump_compressor_active') not in ['unknown', 'unavailable', 'none', ''] }}
+
+      - name: "Heating heatpump state estimated"
+        unique_id: heating_heatpump_state_estimated
+        state: >-
+          {% set power_available = states('sensor.heat_pump_compressor_power') not in ['unknown', 'unavailable', 'none', ''] %}
+          {% set run_min = states('sensor.heating_heatpump_current_run_duration') | float(0) %}
+          {% set min_run = states('input_number.heating_heatpump_min_stable_run_time') | float(10) %}
+          {% if not power_available %}
+            todo
+          {% elif is_state('binary_sensor.heating_heatpump_defrost_likely', 'on') %}
+            defrost
+          {% elif is_state('binary_sensor.heating_heatpump_dhw_signature', 'on') %}
+            dhw
+          {% elif is_state('binary_sensor.heating_heatpump_cycling_risk', 'on') %}
+            intermediate
+          {% elif is_state('binary_sensor.heating_heatpump_heating_signature', 'on') and run_min >= min_run %}
+            heating
+          {% elif is_state('binary_sensor.heating_heatpump_compressor_active', 'on') %}
+            intermediate
+          {% else %}
+            idle
+          {% endif %}
+        icon: mdi:heat-pump-outline
+
+automation:
+  - id: energy_controller_publish_heating_state
+    alias: "Energy Controller - Publikovat stav vytápění"
+    description: "Publikuje požadavek na vytápění, stav hlavic, akumulační nádrže a tepelného čerpadla pro Core2 controller."
+    mode: restart
+    triggers:
+      - trigger: time_pattern
+        seconds: "/30"
+
+      # TODO: replace these entity IDs with real HA entities when available.
+      - trigger: state
+        entity_id:
+          - binary_sensor.heating_demand
+          - sensor.heating_open_valves_count
+          - sensor.heating_total_valves_count
+          - sensor.heating_open_valves_ratio
+          - sensor.todo_heating_coldest_room_delta
+          - sensor.todo_heating_highest_priority_demand_room
+          - sensor.tasmota_ds18b20_4_temperature
+          - sensor.todo_heating_buffer_temp_top
+          - sensor.todo_heating_buffer_temp_bottom
+          - switch.sonoff_circulation_pump
+          - sensor.heating_heatpump_state_estimated
+          - sensor.heat_pump_compressor_power
+          - binary_sensor.heating_heatpump_compressor_active
+          - binary_sensor.heating_heatpump_dhw_signature
+          - binary_sensor.heating_heatpump_heating_signature
+          - binary_sensor.heating_heatpump_defrost_likely
+          - binary_sensor.heating_heatpump_cycling_risk
+          - binary_sensor.todo_heating_compressor_state
+          - sensor.todo_heating_supply_temp
+          - sensor.todo_heating_return_temp
+          - sensor.todo_heating_target_supply_temp
+          - input_number.heating_min_open_valves_for_heatpump
+          - input_number.heating_buffer_target_base_temp
+
+    conditions: []
+
+    variables:
+      demand_entity: binary_sensor.heating_demand
+      open_valves_count_entity: sensor.heating_open_valves_count
+      total_valves_count_entity: sensor.heating_total_valves_count
+      open_valves_ratio_entity: sensor.heating_open_valves_ratio
+      coldest_room_delta_entity: sensor.todo_heating_coldest_room_delta
+      highest_priority_demand_room_entity: sensor.todo_heating_highest_priority_demand_room
+      buffer_temp_entity: sensor.tasmota_ds18b20_4_temperature
+      buffer_temp_top_entity: sensor.todo_heating_buffer_temp_top
+      buffer_temp_bottom_entity: sensor.todo_heating_buffer_temp_bottom
+      circulation_pump_entity: switch.sonoff_circulation_pump
+      heatpump_state_entity: sensor.heating_heatpump_state_estimated
+      heatpump_power_entity: sensor.heat_pump_compressor_power
+      compressor_state_entity: binary_sensor.heating_heatpump_compressor_active
+      supply_temp_entity: sensor.todo_heating_supply_temp
+      return_temp_entity: sensor.todo_heating_return_temp
+      target_supply_temp_entity: sensor.todo_heating_target_supply_temp
+      min_open_valves_for_heatpump_entity: input_number.heating_min_open_valves_for_heatpump
+      buffer_target_base_temp_entity: input_number.heating_buffer_target_base_temp
+
+      demand_available: "{{ states(demand_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      open_valves_count_available: "{{ states(open_valves_count_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      total_valves_count_available: "{{ states(total_valves_count_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      open_valves_ratio_available: "{{ states(open_valves_ratio_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      coldest_room_delta_available: "{{ states(coldest_room_delta_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      highest_priority_demand_room_available: "{{ states(highest_priority_demand_room_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      buffer_temp_available: "{{ states(buffer_temp_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      buffer_temp_top_available: "{{ states(buffer_temp_top_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      buffer_temp_bottom_available: "{{ states(buffer_temp_bottom_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      circulation_pump_state_available: "{{ states(circulation_pump_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      heatpump_state_available: "{{ states(heatpump_state_entity) not in ['unknown', 'unavailable', 'none', '', 'todo'] }}"
+      heatpump_power_available: "{{ states(heatpump_power_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      compressor_state_available: "{{ states(compressor_state_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      supply_temp_available: "{{ states(supply_temp_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      return_temp_available: "{{ states(return_temp_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      target_supply_temp_available: "{{ states(target_supply_temp_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      min_open_valves_for_heatpump_available: "{{ states(min_open_valves_for_heatpump_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      buffer_target_base_temp_available: "{{ states(buffer_target_base_temp_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+
+      demand: "{{ is_state(demand_entity, 'on') if demand_available else none }}"
+      open_valves_count: "{{ (states(open_valves_count_entity) | int) if open_valves_count_available else none }}"
+      total_valves_count: "{{ (states(total_valves_count_entity) | int) if total_valves_count_available else none }}"
+      open_valves_ratio: "{{ (states(open_valves_ratio_entity) | float) if open_valves_ratio_available else none }}"
+      coldest_room_delta_c: "{{ (states(coldest_room_delta_entity) | float) if coldest_room_delta_available else none }}"
+      highest_priority_demand_room: "{{ states(highest_priority_demand_room_entity) if highest_priority_demand_room_available else 'todo' }}"
+      buffer_temp_c: "{{ (states(buffer_temp_entity) | float) if buffer_temp_available else none }}"
+      buffer_temp_top_c: "{{ (states(buffer_temp_top_entity) | float) if buffer_temp_top_available else none }}"
+      buffer_temp_bottom_c: "{{ (states(buffer_temp_bottom_entity) | float) if buffer_temp_bottom_available else none }}"
+      circulation_pump_state: "{{ states(circulation_pump_entity) if circulation_pump_state_available else 'todo' }}"
+      heatpump_state_raw: "{{ states(heatpump_state_entity) if heatpump_state_available else 'todo' }}"
+      heatpump_state: >-
+        {% set value = heatpump_state_raw | lower %}
+        {{ value if not heatpump_state_available or value in ['idle', 'intermediate', 'heating', 'dhw', 'defrost'] else 'intermediate' }}
+      heatpump_power_w: "{{ (states(heatpump_power_entity) | float) if heatpump_power_available else none }}"
+      compressor_state: "{{ states(compressor_state_entity) if compressor_state_available else 'todo' }}"
+      supply_temp_c: "{{ (states(supply_temp_entity) | float) if supply_temp_available else none }}"
+      return_temp_c: "{{ (states(return_temp_entity) | float) if return_temp_available else none }}"
+      target_supply_temp_c: "{{ (states(target_supply_temp_entity) | float) if target_supply_temp_available else none }}"
+      min_open_valves_for_heatpump: "{{ (states(min_open_valves_for_heatpump_entity) | int) if min_open_valves_for_heatpump_available else none }}"
+      buffer_target_base_temp_c: "{{ (states(buffer_target_base_temp_entity) | float) if buffer_target_base_temp_available else none }}"
+
+      source_states:
+        demand: "{{ states(demand_entity) }}"
+        open_valves_count: "{{ states(open_valves_count_entity) }}"
+        total_valves_count: "{{ states(total_valves_count_entity) }}"
+        open_valves_ratio: "{{ states(open_valves_ratio_entity) }}"
+        coldest_room_delta: "{{ states(coldest_room_delta_entity) }}"
+        highest_priority_demand_room: "{{ states(highest_priority_demand_room_entity) }}"
+        buffer_temp: "{{ states(buffer_temp_entity) }}"
+        buffer_temp_top: "{{ states(buffer_temp_top_entity) }}"
+        buffer_temp_bottom: "{{ states(buffer_temp_bottom_entity) }}"
+        circulation_pump_state: "{{ states(circulation_pump_entity) }}"
+        heatpump_state: "{{ states(heatpump_state_entity) }}"
+        heatpump_power: "{{ states(heatpump_power_entity) }}"
+        compressor_state: "{{ states(compressor_state_entity) }}"
+        supply_temp: "{{ states(supply_temp_entity) }}"
+        return_temp: "{{ states(return_temp_entity) }}"
+        target_supply_temp: "{{ states(target_supply_temp_entity) }}"
+        min_open_valves_for_heatpump: "{{ states(min_open_valves_for_heatpump_entity) }}"
+        buffer_target_base_temp: "{{ states(buffer_target_base_temp_entity) }}"
+
+      source_available: >-
+        {{
+          demand_available
+          and open_valves_count_available
+          and total_valves_count_available
+          and open_valves_ratio_available
+          and buffer_temp_available
+          and min_open_valves_for_heatpump_available
+          and buffer_target_base_temp_available
+        }}
+      publish_debug_sources: "{{ is_state('input_boolean.energy_controller_publish_debug_sources', 'on') }}"
+
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: home/heating/state
+          retain: true
+          qos: 0
+          payload: >-
+            {% set state_payload = {
+              "demand": demand,
+              "demand_available": demand_available,
+              "open_valves_count": open_valves_count,
+              "open_valves_count_available": open_valves_count_available,
+              "total_valves_count": total_valves_count,
+              "total_valves_count_available": total_valves_count_available,
+              "open_valves_ratio": open_valves_ratio,
+              "open_valves_ratio_available": open_valves_ratio_available,
+              "coldest_room_delta_c": coldest_room_delta_c,
+              "coldest_room_delta_available": coldest_room_delta_available,
+              "highest_priority_demand_room": highest_priority_demand_room,
+              "highest_priority_demand_room_available": highest_priority_demand_room_available,
+              "buffer_temp_c": buffer_temp_c,
+              "buffer_temp_available": buffer_temp_available,
+              "buffer_temp_sensor_position": "middle",
+              "buffer_temp_top_c": buffer_temp_top_c,
+              "buffer_temp_top_available": buffer_temp_top_available,
+              "buffer_temp_bottom_c": buffer_temp_bottom_c,
+              "buffer_temp_bottom_available": buffer_temp_bottom_available,
+              "circulation_pump_state": circulation_pump_state,
+              "circulation_pump_state_available": circulation_pump_state_available,
+              "heatpump_state": heatpump_state,
+              "heatpump_state_available": heatpump_state_available,
+              "heatpump_power_w": heatpump_power_w,
+              "heatpump_power_available": heatpump_power_available,
+              "compressor_state": compressor_state,
+              "compressor_state_available": compressor_state_available,
+              "supply_temp_c": supply_temp_c,
+              "supply_temp_available": supply_temp_available,
+              "return_temp_c": return_temp_c,
+              "return_temp_available": return_temp_available,
+              "target_supply_temp_c": target_supply_temp_c,
+              "target_supply_temp_available": target_supply_temp_available,
+              "min_open_valves_for_heatpump": min_open_valves_for_heatpump,
+              "min_open_valves_for_heatpump_available": min_open_valves_for_heatpump_available,
+              "buffer_target_base_temp_c": buffer_target_base_temp_c,
+              "buffer_target_base_temp_available": buffer_target_base_temp_available,
+              "source_available": source_available,
+              "published_at": now().isoformat()
+            } %}
+            {{ dict(state_payload, source_states=source_states) | to_json if publish_debug_sources else state_payload | to_json }}
+
+  - id: energy_controller_publish_heating_availability
+    alias: "Energy Controller - Publikovat dostupnost publikátoru vytápění"
+    description: "Publikuje heartbeat pro HA publikátor vytápění."
+    mode: single
+    triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: time_pattern
+        minutes: "/1"
+    conditions: []
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: home/heating/availability
+          payload: "online"
+          retain: true
+          qos: 0

@@ -1,0 +1,44 @@
+#http:
+#  ssl_certificate: /ssl/fullchain.pem
+#  ssl_key: /ssl/privkey.pem
+
+# Loads default set of integrations. Do not remove.
+default_config:
+python_script:
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+climate: !include climates_ng.yaml
+mqtt: !include mqtt.yaml
+#google_assistant: !include google_assistant.yaml
+
+homeassistant:
+  customize: !include customize.yaml
+  packages: !include_dir_named packages
+#  internal_url: https://192.168.1.20:8123
+#  external_url: https://idomov.duckdns.org:753
+
+influxdb:
+  host: 192.168.1.20
+  port: 8086
+  database: homeassistant
+  username: homeassistant
+  password: !secret influxDB_password
+  max_retries: 3
+  default_measurement: state
+
+logger:
+  default: warning
+  logs:
+    custom_components.kia_uvo: debug
+    hyundai_kia_connect_api: debug
+    
+frontend:
+  extra_module_url:
+    - /local/card-mod.js
+  themes: !include_dir_merge_named themes

@@ -1,0 +1,36 @@
+sensor.solax_grid_out_total3:
+  last_reset: '2023-01-19T00:00:00+00:00'
+  state_class: total_increasing
+  device_class: energy
+  value_template: '{{value|round(2)}}'
+sensor.solax_grid_in_total3:
+  last_reset: '2023-01-19T00:00:00+00:00'
+  state_class: total_increasing
+  device_class: energy
+  value_template: '{{value|round(2)}}'
+sensor.solax_battery_out_total3:
+  last_reset: '2023-01-19T00:00:00+00:00'
+  state_class: total_increasing
+  device_class: energy
+  value_template: '{{value|round(2)}}'
+sensor.solax_battery_in_total3:
+  last_reset: '2023-01-19T00:00:00+00:00'
+  state_class: total_increasing
+  device_class: energy
+  value_template: '{{value|round(2)}}'
+sensor.solax_consumption_total3:
+  last_reset: '2023-01-19T00:00:00+00:00'
+  state_class: total_increasing
+  device_class: energy
+  value_template: '{{value|round(2)}}'
+sensor.solax_solar_total3:
+  last_reset: '2023-01-19T00:00:00+00:00'
+  state_class: total_increasing
+  device_class: energy
+  value_template: '{{value|round(2)}}'
+  
+sensor.heat_pump_energy_total:
+  last_reset: '2023-05-15T00:00:00+00:00'
+  state_class: total_increasing
+  device_class: energy
+  value_template: '{{value|round(2)}}'

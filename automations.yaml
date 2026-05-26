@@ -1,0 +1,460 @@
+- id: '1771601717136'
+  alias: Publish large room temperature to largeroom_heater
+  description: ''
+  triggers:
+  - entity_id: climate.large_room_better_thermostat
+    attribute: current_temperature
+    trigger: state
+  - minutes: /5
+    trigger: time_pattern
+  actions:
+  - data:
+      topic: devices/largeroom_heater/temperature
+      payload: '{{ state_attr(''climate.large_room_better_thermostat'',''current_temperature'')
+        }}'
+      qos: 1
+      retain: true
+    action: mqtt.publish
+  mode: single
+- id: '1771601745636'
+  alias: Publish large room setpoint to largeroom_heater
+  description: ''
+  triggers:
+  - entity_id: climate.large_room_better_thermostat
+    attribute: temperature
+    trigger: state
+  actions:
+  - data:
+      topic: devices/largeroom_heater/setpoint
+      payload: '{{ state_attr(''climate.large_room_better_thermostat'',''temperature'')
+        }}'
+      qos: 1
+      retain: true
+    action: mqtt.publish
+  mode: single
+- id: '1771860054425'
+  alias: Sync largeroom_heater control with climate
+  description: Publikuje ON/OFF na devices/largeroom_heater/control podle stavu climate.large_room_better_thermostat
+  triggers:
+  - entity_id: climate.large_room_better_thermostat
+    trigger: state
+  - entity_id: climate.large_room_better_thermostat
+    attribute: hvac_action
+    trigger: state
+  - entity_id: climate.large_room_better_thermostat
+    attribute: hvac_mode
+    trigger: state
+  - event_type: homeassistant_start
+    trigger: event
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ state_attr(''climate.large_room_better_thermostat'',''hvac_action'')
+          == ''heating'' }}
+
+          '
+      sequence:
+      - data:
+          topic: devices/largeroom_heater/control
+          payload: 'ON'
+          qos: 1
+          retain: true
+        action: mqtt.publish
+    - conditions:
+      - condition: template
+        value_template: '{{ state_attr(''climate.large_room_better_thermostat'',''hvac_mode'')
+          == ''heat'' }}
+
+          '
+      sequence:
+      - data:
+          topic: devices/largeroom_heater/control
+          payload: 'ON'
+          qos: 1
+          retain: true
+        action: mqtt.publish
+    default:
+    - data:
+        topic: devices/largeroom_heater/control
+        payload: 'OFF'
+        qos: 1
+        retain: true
+      action: mqtt.publish
+  mode: single
+- id: '1772013170495'
+  alias: Outside stairs and entrance lights
+  triggers:
+  - entity_id: binary_sensor.main_door_contact
+    to: 'on'
+    trigger: state
+  - entity_id: binary_sensor.outside_stairs_motion_occupancy
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: sun
+    after: sunset
+    before: sunrise
+  actions:
+  - target:
+      entity_id: light.entrances_lights
+    action: light.turn_on
+  - wait_for_trigger:
+    - entity_id: binary_sensor.outside_stairs_motion_occupancy
+      to: 'off'
+      for: 00:03:00
+      trigger: state
+    timeout: 00:05:00
+    continue_on_timeout: true
+  - target:
+      entity_id: light.entrances_lights
+    action: light.turn_off
+  mode: restart
+- id: '1772017255008'
+  alias: Upstairs hallway night light
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.upstairs_hallway_motion_occupancy
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: numeric_state
+    entity_id: sensor.upstairs_hallway_motion_illuminance
+    below: 20
+  actions:
+  - target:
+      entity_id: light.sonoff_upstairs_tasmota3
+    action: light.turn_on
+  - delay: 00:02:00
+  - target:
+      entity_id: light.sonoff_upstairs_tasmota3
+    action: light.turn_off
+  mode: restart
+- id: '1772017452074'
+  alias: Downstairs hallway night light
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.downstairs_hallway_motion_occupancy
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: numeric_state
+    entity_id: sensor.downstairs_hallway_motion_illuminance
+    below: 20
+  actions:
+  - target:
+      entity_id: light.sonoff_hall_tasmota3
+    action: light.turn_on
+  - delay: 00:03:00
+  - target:
+      entity_id: light.sonoff_hall_tasmota3
+    action: light.turn_off
+  mode: restart
+- id: '1772017715850'
+  alias: Hall night light
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.hall_motion_occupancy
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: sun
+    after: sunset
+  actions:
+  - target:
+      entity_id: light.sonoff_hall_tasmota4
+    action: light.turn_on
+  - delay: 00:05:00
+  - target:
+      entity_id: light.sonoff_hall_tasmota4
+    action: light.turn_off
+  mode: restart
+- id: '1772018092622'
+  alias: WC night light
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.toilet_multisensor_motion_sensor_status
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: numeric_state
+    entity_id: sensor.toilet_multisensor_illuminance
+    below: 30
+  actions:
+  - target:
+      entity_id: light.sonoff_hall_tasmota2
+    action: light.turn_on
+  - delay: 00:05:00
+  - target:
+      entity_id: light.sonoff_hall_tasmota2
+    action: light.turn_off
+  mode: restart
+- id: '1772018371747'
+  alias: Main stairs night light
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.main_stairs_up_motion_occupancy
+    to: 'on'
+    trigger: state
+  - entity_id: binary_sensor.main_stairs_down_motion_occupancy
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: or
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.main_stairs_up_motion_illuminance
+      below: 20
+    - condition: numeric_state
+      entity_id: sensor.main_stairs_down_motion_illuminance
+      below: 20
+  actions:
+  - target:
+      entity_id: light.sonoff_hall
+    action: light.turn_on
+  - delay: 00:05:00
+  - target:
+      entity_id: light.sonoff_hall
+    action: light.turn_off
+  mode: restart
+- id: '1772018489745'
+  alias: Upstairs bathroom night light
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.upstairs_bathroom_multisensor_motion_sensor_status
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: numeric_state
+    entity_id: sensor.upstairs_bathroom_multisensor_illuminance
+    below: 20
+  actions:
+  - target:
+      entity_id: light.sonoff_upstairs_tasmota4
+    action: light.turn_on
+  - delay: 00:05:00
+  - target:
+      entity_id: light.sonoff_upstairs_tasmota4
+    action: light.turn_off
+  mode: restart
+- id: '1772020026431'
+  alias: Toggle livingroom light when switch toggled
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.living_lights_input
+    trigger: state
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: light.wiz_rgbw_tunable_90732d
+        state: 'off'
+      sequence:
+      - target:
+          entity_id: light.wiz_rgbw_tunable_90732d
+        data:
+          brightness_pct: 100
+        action: light.turn_on
+    default:
+    - target:
+        entity_id: light.wiz_rgbw_tunable_90732d
+      action: light.turn_off
+  mode: single
+- id: '1772021896234'
+  alias: Turn off all lights by upstairs remote
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 5213825ab980c2603b4f10fbd781a111
+    type: action
+    subtype: 1_double
+    trigger: device
+  actions:
+  - target:
+      entity_id: light.all_lights
+    action: light.turn_off
+  mode: single
+- id: '1772630333504'
+  alias: Shelly toggle -> Bedroom IR Light
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.bedroom_lights_input
+    trigger: state
+  conditions: []
+  actions:
+  - target:
+      entity_id: light.bedroom_ir_light
+    action: light.toggle
+  mode: restart
+- id: '1772630347742'
+  alias: Bedroom IR Light - Sync according to power
+  description: ''
+  triggers:
+  - entity_id: sensor.bedroom_lights_power
+    trigger: state
+  conditions: []
+  actions:
+  - delay: 00:00:10
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ states(''sensor.bedroom_lights_power'') | float(0) > 10
+          }}'
+      sequence:
+      - target:
+          entity_id: input_boolean.bedroom_light_logic_state
+        action: input_boolean.turn_on
+    - conditions:
+      - condition: template
+        value_template: '{{ states(''sensor.bedroom_lights_power'') | float(0) <=
+          10 }}'
+      sequence:
+      - target:
+          entity_id: input_boolean.bedroom_light_logic_state
+        action: input_boolean.turn_off
+  mode: restart
+- &id001
+  id: hot_water_tank_turn_on_when_conditions_met
+  alias: Zapni bojler při přebytku solárů a plné baterii a nízké teplotě
+  description: Zapne input_boolean.hot_water_tank když jsou splněny všechny tři podmínky.
+  triggers:
+  - value_template: "{{ (states('sensor.solar_surplus_power') | float(0) > 2600)\n
+      \  and (states('sensor.solax_inverter_battery_remaining_capacity')    | float(0)
+      > 70)\n   and (states('sensor.tasmota_ds18b20_temperature') | float(0) < 55)
+      }}"
+    trigger: template
+  conditions:
+  - condition: state
+    entity_id: input_boolean.hot_water_tank
+    state: 'off'
+  actions:
+  - target:
+      entity_id: input_boolean.hot_water_tank
+    action: input_boolean.turn_on
+  mode: single
+- *id001
+- *id001
+- *id001
+- id: hot_water_tank_turn_off_on_high_temp
+  alias: Vypni bojler při dosažení vysoké teploty
+  description: Vypne input_boolean.hot_water_tank když je teplota v topném zásobníku
+    > 61°C.
+  triggers:
+  - entity_id: sensor.tasmota_ds18b20_temperature
+    above: 61
+    trigger: numeric_state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.hot_water_tank
+    state: 'on'
+  actions:
+  - target:
+      entity_id: input_boolean.hot_water_tank
+    action: input_boolean.turn_off
+  mode: single
+- id: '1773954638602'
+  alias: Schody - poziční světlo po zhasnutí (jen v noci, 2 min)
+  description: ''
+  triggers:
+  - entity_id: light.stairs1_lights
+    from: 'on'
+    to: 'off'
+    trigger: state
+  conditions:
+  - condition: sun
+    after: sunset
+    before: sunrise
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.main_stairs_down_motion_occupancy
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.main_stairs_up_motion_occupancy
+      state: 'on'
+  actions:
+  - target:
+      entity_id: light.sonoff_hall
+    data:
+      brightness_pct: 20
+    action: light.turn_on
+  - delay: 00:02:00
+  - target:
+      entity_id: light.sonoff_hall
+    action: light.turn_off
+  mode: restart
+- id: '1774001990201'
+  alias: Chodba - oznámení při pohybu
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.upstairs_hallway_motion_occupancy
+    to:
+    - 'on'
+    trigger: state
+  conditions: []
+  actions:
+  - target:
+      entity_id: media_player.livingroom_google_nest
+    data:
+      message: Děti běhají po chodbě
+      language: cs
+      entity_id: media_player.livingroom_google_nest
+    action: tts.google_translate_say
+  mode: single
+- id: '1778011299438'
+  alias: Garden valve start
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id: input_boolean.garden_valve_timer
+    to: 'on'
+  conditions: []
+  actions:
+  - action: switch.turn_on
+    target:
+      entity_id: switch.garden_valve
+  - action: timer.start
+    target:
+      entity_id: timer.garden_valve_timer
+    data:
+      duration: '{{ states(''input_number.garden_valve_duration'') | int * 60 }}
+
+        '
+  mode: restart
+- id: '1778011429254'
+  alias: Garden valve stop
+  description: ''
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.garden_valve_timer
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    target:
+      entity_id: switch.garden_valve
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.garden_valve_timer
+  mode: single
+- id: '1778011462848'
+  alias: Garden valve manual stop
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id: input_boolean.garden_valve_timer
+    to: 'off'
+  conditions: []
+  actions:
+  - action: timer.cancel
+    target:
+      entity_id: timer.garden_valve_timer
+    data: {}
+  - action: switch.turn_off
+    target:
+      entity_id: switch.garden_valve
+  mode: restart

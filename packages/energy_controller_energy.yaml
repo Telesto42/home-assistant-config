@@ -1,0 +1,126 @@
+# Energy controller - Home Assistant -> MQTT energy state package
+#
+# Purpose:
+# Publishes one compact JSON package for M5Stack Core2:
+#
+#   home/energy/state
+#
+# Before use:
+# Replace the example entity IDs below with the real entities from your Home Assistant.
+
+automation:
+  - id: energy_controller_publish_energy_state
+    alias: "Energy Controller - Publikovat stav energie"
+    description: "Publikuje stav FVE, sítě a baterie pro Core2 controller."
+    mode: restart
+    triggers:
+      # Heartbeat so Core2 can detect fresh data even if values do not change.
+      - trigger: time_pattern
+        seconds: "/15"
+
+      # TODO: replace these entity IDs with real HA entities.
+      - trigger: state
+        entity_id:
+          - sensor.solax_total_pv_power
+          - sensor.solax_inverter_load_generator_power
+          - sensor.solax_inverter_grid_power
+          - sensor.solax_inverter_battery_remaining_capacity
+          - sensor.solax_inverter_battery_power
+          - sensor.solax_inverter_run_mode_text
+
+    conditions: []
+
+    variables:
+      # TODO: replace these entity IDs with real HA entities.
+      pv_power_entity: sensor.solax_total_pv_power
+      house_power_entity: sensor.solax_inverter_load_generator_power
+      grid_power_entity: sensor.solax_inverter_grid_power
+      battery_soc_entity: sensor.solax_inverter_battery_remaining_capacity
+      battery_power_entity: sensor.solax_inverter_battery_power
+      inverter_run_mode_entity: sensor.solax_inverter_run_mode_text
+
+      # Sign convention expected by Core2:
+      # grid_power_w > 0      => importing from grid
+      # grid_power_w < 0      => exporting to grid
+      # battery_power_w > 0   => battery discharging
+      # battery_power_w < 0   => battery charging
+      #
+      # If your Solax integration uses the opposite sign, change the multipliers below.
+      grid_power_multiplier: -1
+      battery_power_multiplier: -1
+
+      pv_power_w: "{{ states(pv_power_entity) | float(0) }}"
+      house_power_w: "{{ states(house_power_entity) | float(0) }}"
+      grid_power_w: "{{ (states(grid_power_entity) | float(0)) * grid_power_multiplier }}"
+      battery_soc: "{{ states(battery_soc_entity) | float(0) }}"
+      battery_power_w: "{{ (states(battery_power_entity) | float(0)) * battery_power_multiplier }}"
+      battery_state: >-
+        {% set p = battery_power_w | float(0) %}
+        {% if p < -50 %}
+          charging
+        {% elif p > 50 %}
+          discharging
+        {% else %}
+          idle
+        {% endif %}
+      inverter_run_mode_text: "{{ states(inverter_run_mode_entity) }}"
+      eps_mode: "{{ 'eps' in (inverter_run_mode_text | lower) }}"
+      available_surplus_w: "{{ [0, 0 - (grid_power_w | float(0))] | max }}"
+
+      source_states:
+        pv_power: "{{ states(pv_power_entity) }}"
+        house_power: "{{ states(house_power_entity) }}"
+        grid_power: "{{ states(grid_power_entity) }}"
+        battery_soc: "{{ states(battery_soc_entity) }}"
+        battery_power: "{{ states(battery_power_entity) }}"
+        inverter_run_mode_text: "{{ states(inverter_run_mode_entity) }}"
+
+      source_available: >-
+        {{
+          source_states.pv_power not in ['unknown', 'unavailable', 'none', '']
+          and source_states.house_power not in ['unknown', 'unavailable', 'none', '']
+          and source_states.grid_power not in ['unknown', 'unavailable', 'none', '']
+          and source_states.battery_soc not in ['unknown', 'unavailable', 'none', '']
+          and source_states.battery_power not in ['unknown', 'unavailable', 'none', '']
+        }}
+      publish_debug_sources: "{{ is_state('input_boolean.energy_controller_publish_debug_sources', 'on') }}"
+
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: home/energy/state
+          retain: true
+          qos: 0
+          payload: >-
+            {% set state_payload = {
+              "pv_power_w": pv_power_w | float(0),
+              "house_power_w": house_power_w | float(0),
+              "grid_power_w": grid_power_w | float(0),
+              "battery_soc": battery_soc | float(0),
+              "battery_power_w": battery_power_w | float(0),
+              "battery_state": battery_state | trim,
+              "inverter_run_mode_text": inverter_run_mode_text,
+              "eps_mode": eps_mode,
+              "available_surplus_w": available_surplus_w | float(0),
+              "source_available": source_available,
+              "published_at": now().isoformat()
+            } %}
+            {{ dict(state_payload, source_states=source_states) | to_json if publish_debug_sources else state_payload | to_json }}
+
+  - id: energy_controller_publish_energy_availability
+    alias: "Energy Controller - Publikovat dostupnost publikátoru energie"
+    description: "Publikuje heartbeat pro HA publikátor energie."
+    mode: single
+    triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: time_pattern
+        minutes: "/1"
+    conditions: []
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: home/energy/availability
+          payload: "online"
+          retain: true
+          qos: 0

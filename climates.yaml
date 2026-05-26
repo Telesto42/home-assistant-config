@@ -1,0 +1,186 @@
+- platform: generic_thermostat
+  name: Heating Zone 1
+  heater: switch.heating_zone_1
+  target_sensor: sensor.livingroom_multisensor_temperature_air
+  min_temp: 18
+  max_temp: 28
+  ac_mode: false
+  target_temp: 20
+  cold_tolerance: 0.3
+  hot_tolerance: 0.3
+  min_cycle_duration:
+    minutes: 3
+  keep_alive:
+    minutes: 3
+  initial_hvac_mode: "heat"
+  away_temp: 20
+  precision: 0.1
+
+- platform: generic_thermostat
+  name: Heating Zone 2
+  heater: switch.heating_zone_2
+  target_sensor: sensor.upstairs_hallway_multisensor_temperature
+  min_temp: 18
+  max_temp: 28
+  ac_mode: false
+  target_temp: 20
+  cold_tolerance: 0.2
+  hot_tolerance: 0.3
+  min_cycle_duration:
+    minutes: 3
+  keep_alive:
+    minutes: 3
+  initial_hvac_mode: "heat"
+  away_temp: 20
+  precision: 0.1
+
+- platform: generic_thermostat
+  name: Heating Zone 3
+  heater: switch.heating_zone_3
+  target_sensor: sensor.attic_multisensor_temperature
+  min_temp: 18
+  max_temp: 28
+  ac_mode: false
+  target_temp: 20
+  cold_tolerance: 0.2
+  hot_tolerance: 0.3
+  min_cycle_duration:
+    minutes: 3
+  keep_alive:
+    minutes: 3
+  initial_hvac_mode: "heat"
+  away_temp: 20
+  precision: 0.1
+
+- platform: generic_thermostat
+  name: Large room
+  heater: switch.large_room_heating
+  target_sensor: sensor.large_room_multisensor_temperature
+  min_temp: 15
+  max_temp: 25
+  ac_mode: false
+  target_temp: 20
+  cold_tolerance: 0.3
+  hot_tolerance: 0.3
+  min_cycle_duration:
+    minutes: 3
+  keep_alive:
+    minutes: 3
+  initial_hvac_mode: "heat"
+  away_temp: 16
+  precision: 0.1
+
+- platform: generic_thermostat
+  name: Small room
+  heater: switch.small_room_heating
+  target_sensor: sensor.small_room_multisensor_temperature
+  min_temp: 15
+  max_temp: 25
+  ac_mode: false
+  target_temp: 20
+  cold_tolerance: 0.3
+  hot_tolerance: 0.3
+  min_cycle_duration:
+    minutes: 3
+  keep_alive:
+    minutes: 3
+  initial_hvac_mode: "heat"
+  away_temp: 16
+  precision: 0.1
+  
+- platform: generic_thermostat
+  name: Locker Room
+  heater: switch.locker_room_heating
+  target_sensor: sensor.locker_room_multisensor_temperature
+  min_temp: 15
+  max_temp: 25
+  ac_mode: false
+  target_temp: 20
+  cold_tolerance: 0.3
+  hot_tolerance: 0.3
+  min_cycle_duration:
+    minutes: 3
+  keep_alive:
+    minutes: 3
+  initial_hvac_mode: "heat"
+  away_temp: 16
+  precision: 0.1
+  
+- platform: generic_thermostat
+  name: Upstairs Bathroom
+  heater: switch.upstairs_bathroom_heating
+  target_sensor: sensor.upstairs_bathroom_multisensor_temperature_air
+  min_temp: 15
+  max_temp: 25
+  ac_mode: false
+  target_temp: 20
+  cold_tolerance: 0.3
+  hot_tolerance: 0.3
+  min_cycle_duration:
+    minutes: 3
+  keep_alive:
+    minutes: 3
+  initial_hvac_mode: "heat"
+  away_temp: 16
+  precision: 0.1
+  
+- platform: generic_thermostat
+  name: Upstairs Bathroom Addon
+  heater: switch.bathroom2_heating
+  target_sensor: sensor.upstairs_bathroom_multisensor_temperature_air
+  min_temp: 15
+  max_temp: 25
+  ac_mode: false
+  target_temp: 20
+  cold_tolerance: 0.3
+  hot_tolerance: 0.3
+  min_cycle_duration:
+    minutes: 3
+  keep_alive:
+    minutes: 3
+  initial_hvac_mode: "heat"
+  away_temp: 16
+  precision: 0.1
+
+- platform: generic_thermostat
+  name: Downstairs Bathroom
+  heater: switch.downstairs_bathroom_heating
+  target_sensor: sensor.downstairs_bathroom_multisensor_temperature_air
+  min_temp: 15
+  max_temp: 25
+  ac_mode: false
+  target_temp: 20
+  cold_tolerance: 0.3
+  hot_tolerance: 0.3
+  min_cycle_duration:
+    minutes: 3
+  keep_alive:
+    minutes: 3
+  initial_hvac_mode: "heat"
+  away_temp: 16
+  precision: 0.1
+  
+- platform: generic_thermostat
+  name: Hall
+  heater: switch.hall_heating
+  target_sensor: sensor.hall_multisensor_temperature
+  min_temp: 15
+  max_temp: 25
+  ac_mode: false
+  target_temp: 20
+  cold_tolerance: 0.3
+  hot_tolerance: 0.3
+  min_cycle_duration:
+    minutes: 3
+  keep_alive:
+    minutes: 3
+  initial_hvac_mode: "heat"
+  away_temp: 16
+  precision: 0.1
+
+
+
+
+
+
+

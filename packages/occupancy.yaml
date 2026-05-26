@@ -1,0 +1,108 @@
+input_boolean:
+  house_occupied:
+    name: House Occupied
+    icon: mdi:home-account
+
+timer:
+  house_exit_grace:
+    name: House Exit Grace
+    duration: "00:05:00"
+
+template:
+  - binary_sensor:
+      - name: House Occupied
+        unique_id: house_occupied_binary
+        state: >
+          {{ is_state('input_boolean.house_occupied', 'on') }}
+        device_class: occupancy
+
+automation:
+
+  - alias: House Presence - motion means occupied
+    id: house_presence_motion_means_occupied
+    description: ""
+    mode: restart
+
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.main_stairs_down_motion_occupancy
+          - binary_sensor.upstairs_hallway_motion_occupancy
+          - binary_sensor.main_stairs_up_motion_occupancy
+          - binary_sensor.downstairs_hallway_motion_occupancy
+          - binary_sensor.attic_stairs_motion_occupancy
+          - binary_sensor.cellar_hallway_motion_occupancy
+          - binary_sensor.hall_motion_occupancy
+          - binary_sensor.toilet_multisensor_motion_sensor_status
+          - binary_sensor.downstairs_bathroom_multisensor_motion_sensor_status
+          - binary_sensor.livingroom_multisensor_motion_sensor_status
+          - binary_sensor.upstairs_bathroom_multisensor_motion_sensor_status
+          - binary_sensor.office_multisensor_motion_sensor_status_2
+        to: "on"
+
+    conditions: []
+
+    actions:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.house_occupied
+
+      - action: timer.cancel
+        target:
+          entity_id: timer.house_exit_grace
+
+  - alias: House Presence - door opened start exit timer
+    id: house_presence_door_opened_start_exit_timer
+    description: ""
+    mode: restart
+
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.back_door_contact
+          - binary_sensor.main_door_contact
+          - binary_sensor.garage_door_contact
+        to: "off"
+
+    conditions:
+      - condition: state
+        entity_id: input_boolean.house_occupied
+        state: "on"
+
+    actions:
+      - action: timer.start
+        target:
+          entity_id: timer.house_exit_grace
+
+  - alias: House Presence - mark away after no motion
+    id: house_presence_mark_away_after_no_motion
+    description: ""
+    mode: single
+
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.house_exit_grace
+
+    conditions:
+      - condition: state
+        entity_id: 
+          - binary_sensor.main_stairs_down_motion_occupancy
+          - binary_sensor.upstairs_hallway_motion_occupancy
+          - binary_sensor.main_stairs_up_motion_occupancy
+          - binary_sensor.downstairs_hallway_motion_occupancy
+          - binary_sensor.attic_stairs_motion_occupancy
+          - binary_sensor.cellar_hallway_motion_occupancy
+          - binary_sensor.hall_motion_occupancy
+          - binary_sensor.toilet_multisensor_motion_sensor_status
+          - binary_sensor.downstairs_bathroom_multisensor_motion_sensor_status
+          - binary_sensor.livingroom_multisensor_motion_sensor_status
+          - binary_sensor.upstairs_bathroom_multisensor_motion_sensor_status
+          - binary_sensor.office_multisensor_motion_sensor_status_2
+        state: "off"
+
+    actions:
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.house_occupied

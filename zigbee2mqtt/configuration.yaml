@@ -1,0 +1,170 @@
+homeassistant:
+  enabled: true
+  legacy_action_sensor: true
+  status_topic: hass/status
+advanced:
+  network_key:
+    - 242
+    - 167
+    - 247
+    - 43
+    - 22
+    - 64
+    - 9
+    - 70
+    - 79
+    - 134
+    - 201
+    - 252
+    - 20
+    - 187
+    - 68
+    - 54
+  pan_id: 1580
+  ext_pan_id:
+    - 78
+    - 49
+    - 232
+    - 38
+    - 218
+    - 216
+    - 17
+    - 222
+  transmit_power: 20
+  last_seen: ISO_8601_local
+  log_level: info
+mqtt:
+  server: mqtt://core-mosquitto:1883
+  user: addons
+  password: mivahlietuthae2Eedu8ais1ichiivazoo7eiphe4deli1ohvae9tae3aiGahyei
+  keepalive: 60
+  reject_unauthorized: true
+  version: 4
+serial:
+  port: tcp://slzb-06.local:6638
+  adapter: zstack
+  baudrate: 115200
+frontend:
+  enabled: true
+  port: 8099
+device_options: {}
+devices:
+  '0xd87a3bfffe5c4b02':
+    friendly_name: 'RB - Hall '
+  '0x040d84fffe5127c0':
+    friendly_name: 'RB - Down Hallway '
+  '0x28dba7fffeecb2e7':
+    friendly_name: RB - Bookshelf
+  '0x84b4dbfffec7a9bd':
+    friendly_name: 'RU - Up Window '
+  '0x881a14fffe02a3f4':
+    friendly_name: RB - Bedroom
+  '0x04cd15fffe0c3cc2':
+    friendly_name: RB - Attic
+  '0x00158d00094344a1':
+    friendly_name: Upstairs Hallway Multisensor
+  '0x00158d000ad5fa97':
+    friendly_name: Bedroom Multisensor
+  '0xa4c138edc361a921':
+    friendly_name: Hall Multisensor
+  '0x00158d0007d161b5':
+    friendly_name: Main Door
+  '0x00124b002225af29':
+    friendly_name: Back Door
+  '0x00158d000969acf6':
+    friendly_name: Hall Window
+  '0x00158d0007e08c5b':
+    friendly_name: Locker Room Multisensor
+  '0x00158d0009ea3b20':
+    friendly_name: Attic South Window
+  '0x00158d0007e48a31':
+    friendly_name: Small Room Multisensor
+  '0x00158d0007e4c14b':
+    friendly_name: Large Room Multisensor
+  '0x00158d0007002712':
+    friendly_name: Upstairs Hallway Motion
+  '0x00158d00096dfb80':
+    friendly_name: Upstairs Hallway Window
+  '0x00158d000806e839':
+    friendly_name: Small Room Window
+  '0x00158d0007e6300b':
+    friendly_name: Bedroom Window
+  '0x00158d0007ecaf56':
+    friendly_name: Main Stairs Up Motion
+  '0x00158d0007eccbdb':
+    friendly_name: Downstairs Hallway Motion
+  '0x00158d000950bca2':
+    friendly_name: Livingroom Window
+  '0x00158d000950c106':
+    friendly_name: Livingroom Door
+  '0x00158d000950c140':
+    friendly_name: Kitchen Small Window
+  '0xe0798dfffe539dee':
+    friendly_name: Kitchen LED
+  '0xa4c138f67f08a750':
+    friendly_name: Showcase
+  '0x00158d0009ee658b':
+    friendly_name: Locker Room Leak Sensor
+  '0xa4c138659499c372':
+    friendly_name: Ceilling Fan
+  '0x00158d00075fb5ac':
+    friendly_name: Main Stairs Down Motion
+  '0x54ef4410006329dc':
+    friendly_name: Attic Stairs Motion
+  '0x00158d000806ee71':
+    friendly_name: Large Room West Window
+  '0x00158d000806ea64':
+    friendly_name: Large Room South Window
+  '0x187a3efffe2a1b7e':
+    friendly_name: Upstairs Remote
+  '0x54ef4410010f0295':
+    friendly_name: Kitchen Leak Sensor
+  '0x00158d00093ea442':
+    friendly_name: Attic Multisensor
+  '0xa4c1388c8c792ab5':
+    friendly_name: TV Livingroom
+  '0xa81710b983c50000':
+    friendly_name: Livingroom Lamp
+  '0xa4c138cea83e8371':
+    friendly_name: Filtration
+  '0x00124b001f915791':
+    friendly_name: Cellar Hallway Multisensor
+  '0x00158d0007e497ff':
+    friendly_name: Outside North
+  '0x00158d00094c0399':
+    friendly_name: Downstairs Hallway Multisensor
+  '0xa4c1385eb265e154':
+    friendly_name: Washing Machine
+  '0xa4c138de72872f96':
+    friendly_name: Dryer
+  '0x54ef441000d9c415':
+    friendly_name: Aqara Button
+  '0x142d41fffe269558':
+    friendly_name: Jakub Button
+  '0x142d41fffe2694cb':
+    friendly_name: David Button
+  '0xa4c138937e9c930d':
+    friendly_name: Long Remote
+  '0x142d41fffeaf5fcf':
+    friendly_name: RB - Cellar
+  '0x54ef441000632659':
+    friendly_name: Cellar Hallway Motion
+  '0x0ceff6fffebeb95b':
+    friendly_name: RU - Workshop Router
+  '0xa4c13828e043c834':
+    friendly_name: Main Water Valve
+  '0xa4c1384158f9718e':
+    friendly_name: Garage Plug
+  '0xa4c1380257e8ffff':
+    friendly_name: Pool Temperature
+  '0x54ef4410005e195b':
+    friendly_name: Outside Stairs Motion
+  '0x54ef441000a792f7':
+    friendly_name: Garage Door
+  '0x00158d0009ee5f43':
+    friendly_name: Technical Room Leak Sensor
+  '0xa4c138b12825d77f':
+    friendly_name: Hall Motion
+version: 5
+availability:
+  enabled: true

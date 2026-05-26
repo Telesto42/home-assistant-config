@@ -1,0 +1,157 @@
+# Energy controller - Home Assistant -> MQTT pool state package
+#
+# Purpose:
+# Publishes one compact JSON package for M5Stack Core2:
+#
+#   home/pool/state
+#
+# Most entities are intentionally TODO placeholders. Missing numeric values are
+# published as null, missing states as "todo", and each important value has an
+# explicit *_available flag.
+
+input_number:
+  pool_target_temp:
+    name: "Cílová teplota bazénu"
+    min: 15
+    max: 35
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:pool-thermometer
+
+  pool_filter_min_runtime_day:
+    name: "Minimální denní běh filtrace bazénu"
+    min: 0
+    max: 720
+    step: 15
+    unit_of_measurement: "min"
+    icon: mdi:timer-outline
+
+input_boolean:
+  pool_safety_lock:
+    name: "Bezpečnostní blokace bazénu"
+    icon: mdi:shield-alert
+
+  pool_manual_filter_active:
+    name: "Ruční filtrace bazénu"
+    icon: mdi:pool
+
+automation:
+  - id: energy_controller_publish_pool_state
+    alias: "Energy Controller - Publikovat stav bazénu"
+    description: "Publikuje stav filtrace bazénu, tepelného čerpadla, bezpečnostní blokace a doby běhu pro Core2 controller."
+    mode: restart
+    triggers:
+      # Heartbeat so Core2 can detect fresh data even if values do not change.
+      - trigger: time_pattern
+        seconds: "/30"
+
+      # TODO: replace these entity IDs with real HA entities when available.
+      - trigger: state
+        entity_id:
+          - sensor.pool_temperature_temperature
+          - input_number.pool_target_temp
+          - switch.filtration
+          - switch.todo_pool_heatpump
+          - input_boolean.pool_safety_lock
+          - input_boolean.pool_manual_filter_active
+          - sensor.todo_pool_filter_runtime_today
+          - input_number.pool_filter_min_runtime_day
+
+    conditions: []
+
+    variables:
+      # TODO: replace these entity IDs with real HA entities when available.
+      water_temp_entity: sensor.pool_temperature_temperature
+      target_temp_entity: input_number.pool_target_temp
+      filter_entity: switch.filtration
+      heatpump_entity: switch.todo_pool_heatpump
+      safety_lock_entity: input_boolean.pool_safety_lock
+      manual_filter_active_entity: input_boolean.pool_manual_filter_active
+      filter_runtime_today_entity: sensor.todo_pool_filter_runtime_today
+      filter_min_runtime_day_entity: input_number.pool_filter_min_runtime_day
+
+      water_temp_available: "{{ states(water_temp_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      target_temp_available: "{{ states(target_temp_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      filter_state_available: "{{ states(filter_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      heatpump_state_available: "{{ states(heatpump_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      safety_lock_available: "{{ states(safety_lock_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      manual_filter_active_available: "{{ states(manual_filter_active_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      filter_runtime_today_available: "{{ states(filter_runtime_today_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      filter_min_runtime_day_available: "{{ states(filter_min_runtime_day_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+
+      water_temp_c: "{{ (states(water_temp_entity) | float) if water_temp_available else none }}"
+      target_temp_c: "{{ (states(target_temp_entity) | float) if target_temp_available else none }}"
+      filter_state: "{{ states(filter_entity) if filter_state_available else 'todo' }}"
+      heatpump_state: "{{ states(heatpump_entity) if heatpump_state_available else 'todo' }}"
+      safety_lock: "{{ is_state(safety_lock_entity, 'on') if safety_lock_available else none }}"
+      manual_filter_active: "{{ is_state(manual_filter_active_entity, 'on') if manual_filter_active_available else none }}"
+      filter_runtime_today_min: "{{ (states(filter_runtime_today_entity) | float) if filter_runtime_today_available else none }}"
+      filter_min_runtime_day_min: "{{ (states(filter_min_runtime_day_entity) | float) if filter_min_runtime_day_available else none }}"
+
+      source_states:
+        water_temp: "{{ states(water_temp_entity) }}"
+        target_temp: "{{ states(target_temp_entity) }}"
+        filter_state: "{{ states(filter_entity) }}"
+        heatpump_state: "{{ states(heatpump_entity) }}"
+        safety_lock: "{{ states(safety_lock_entity) }}"
+        manual_filter_active: "{{ states(manual_filter_active_entity) }}"
+        filter_runtime_today: "{{ states(filter_runtime_today_entity) }}"
+        filter_min_runtime_day: "{{ states(filter_min_runtime_day_entity) }}"
+
+      source_available: >-
+        {{
+          water_temp_available
+          and target_temp_available
+          and filter_state_available
+          and safety_lock_available
+          and manual_filter_active_available
+          and filter_min_runtime_day_available
+        }}
+      publish_debug_sources: "{{ is_state('input_boolean.energy_controller_publish_debug_sources', 'on') }}"
+
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: home/pool/state
+          retain: true
+          qos: 0
+          payload: >-
+            {% set state_payload = {
+              "water_temp_c": water_temp_c,
+              "water_temp_available": water_temp_available,
+              "target_temp_c": target_temp_c,
+              "target_temp_available": target_temp_available,
+              "filter_state": filter_state,
+              "filter_state_available": filter_state_available,
+              "heatpump_state": heatpump_state,
+              "heatpump_state_available": heatpump_state_available,
+              "safety_lock": safety_lock,
+              "safety_lock_available": safety_lock_available,
+              "manual_filter_active": manual_filter_active,
+              "manual_filter_active_available": manual_filter_active_available,
+              "filter_runtime_today_min": filter_runtime_today_min,
+              "filter_runtime_today_available": filter_runtime_today_available,
+              "filter_min_runtime_day_min": filter_min_runtime_day_min,
+              "filter_min_runtime_day_available": filter_min_runtime_day_available,
+              "source_available": source_available,
+              "published_at": now().isoformat()
+            } %}
+            {{ dict(state_payload, source_states=source_states) | to_json if publish_debug_sources else state_payload | to_json }}
+
+  - id: energy_controller_publish_pool_availability
+    alias: "Energy Controller - Publikovat dostupnost publikátoru bazénu"
+    description: "Publikuje heartbeat pro HA publikátor bazénu."
+    mode: single
+    triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: time_pattern
+        minutes: "/1"
+    conditions: []
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: home/pool/availability
+          payload: "online"
+          retain: true
+          qos: 0

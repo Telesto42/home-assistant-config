@@ -1,0 +1,49 @@
+template:
+  - sensor:
+
+      - name: Heat Pump Energy Total
+        unique_id: heat_pump_energy_total
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        state: >
+          {{ states('sensor.heat_pump_measurement_channel_a_energy')|float +
+             states('sensor.heat_pump_measurement_channel_b_energy')|float +
+             states('sensor.heat_pump_measurement_channel_c_energy')|float }}
+
+      - name: Heat Pump Power Total
+        unique_id: heat_pump_power_total
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        state: >
+          {{ states('sensor.heat_pump_measurement_channel_a_power')|float +
+             states('sensor.heat_pump_measurement_channel_b_power')|float +
+             states('sensor.heat_pump_measurement_channel_c_power')|float }}
+
+      - name: Heat Pump Start Count
+        unique_id: heat_pump_start_count
+        state_class: measurement
+        state: "{{ states('counter.heat_pump_start_count') | int }}"
+
+      - name: Heat Pump Working Time
+        unique_id: heat_pump_working_time
+        unit_of_measurement: h
+        state_class: measurement
+        state: >
+          {{ (states('input_number.heat_pump_working_time') | float / 60) | round(1) }}
+
+      - name: Heat Pump Daily Working Time
+        unique_id: heat_pump_daily_working_time
+        unit_of_measurement: h
+        state_class: measurement
+        state: >
+          {{ (states('input_number.heat_pump_daily_working_time') | float / 60) | round(1) }}
+
+      - name: Heat Pump Health
+        unique_id: heat_pump_health
+        state_class: measurement
+        state: >
+          {% set wt = states('sensor.heat_pump_working_time') | float %}
+          {% set sc = states('sensor.heat_pump_start_count') | float %}
+          {{ (wt / sc) | round(2) if sc > 0 else 0 }}

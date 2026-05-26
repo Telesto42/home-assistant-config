@@ -1,0 +1,177 @@
+title: Energy Controller
+views:
+  - title: Diagnostika
+    path: energy-controller
+    icon: mdi:home-lightning-bolt-outline
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Energy Controller
+            subtitle: Stav Core2 a datových vstupů
+
+          - type: custom:mushroom-template-card
+            entity: sensor.energy_controller_health
+            primary: "{{ states(entity) }}"
+            secondary: "Health"
+            icon: mdi:heart-pulse
+            icon_color: >-
+              {% if is_state(entity, 'OK') %}
+                green
+              {% elif is_state(entity, 'DEGRADED') %}
+                orange
+              {% else %}
+                red
+              {% endif %}
+
+          - type: custom:mushroom-template-card
+            entity: binary_sensor.energy_controller_degraded
+            primary: >-
+              {% if is_state(entity, 'on') %}
+                Degradovaný stav
+              {% else %}
+                Bez degradace
+              {% endif %}
+            secondary: "Read-only controller"
+            icon: mdi:shield-alert-outline
+            icon_color: "{{ 'red' if is_state(entity, 'on') else 'green' }}"
+
+          - type: custom:mushroom-entity-card
+            entity: binary_sensor.energy_controller_mqtt_connected
+            name: MQTT připojení
+            icon: mdi:lan-connect
+
+          - type: custom:mushroom-entity-card
+            entity: binary_sensor.energy_controller_display_awake
+            name: Displej Core2
+            icon: mdi:monitor
+
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.energy_controller_publish_debug_sources
+            name: Ladicí zdrojové stavy
+            icon: mdi:bug-outline
+
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Stáří dat
+            subtitle: Zpoždění posledních MQTT payloadů
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.energy_controller_energy_data_age
+            name: Energie
+            icon: mdi:solar-power-variant-outline
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.energy_controller_tuv_data_age
+            name: TUV
+            icon: mdi:water-boiler
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.energy_controller_pool_data_age
+            name: Bazén
+            icon: mdi:pool
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.energy_controller_heating_data_age
+            name: Vytápění
+            icon: mdi:heating-coil
+
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Dostupnost zdrojů
+            subtitle: "source_available a stale příznaky"
+
+          - type: custom:mushroom-template-card
+            entity: binary_sensor.energy_controller_energy_source_available
+            primary: Energie
+            secondary: "{{ 'zdroj dostupný' if is_state(entity, 'on') else 'zdroj nedostupný' }}"
+            icon: mdi:solar-power-variant-outline
+            icon_color: "{{ 'green' if is_state(entity, 'on') else 'red' }}"
+
+          - type: custom:mushroom-template-card
+            entity: binary_sensor.energy_controller_tuv_source_available
+            primary: TUV
+            secondary: "{{ 'zdroj dostupný' if is_state(entity, 'on') else 'zdroj nedostupný' }}"
+            icon: mdi:water-boiler
+            icon_color: "{{ 'green' if is_state(entity, 'on') else 'red' }}"
+
+          - type: custom:mushroom-template-card
+            entity: binary_sensor.energy_controller_pool_source_available
+            primary: Bazén
+            secondary: "{{ 'zdroj dostupný' if is_state(entity, 'on') else 'zdroj nedostupný' }}"
+            icon: mdi:pool
+            icon_color: "{{ 'green' if is_state(entity, 'on') else 'red' }}"
+
+          - type: custom:mushroom-template-card
+            entity: binary_sensor.energy_controller_heating_source_available
+            primary: Vytápění
+            secondary: "{{ 'zdroj dostupný' if is_state(entity, 'on') else 'zdroj nedostupný' }}"
+            icon: mdi:heating-coil
+            icon_color: "{{ 'green' if is_state(entity, 'on') else 'red' }}"
+
+          - type: custom:mushroom-template-card
+            entity: binary_sensor.energy_controller_energy_stale
+            primary: Energie stale
+            secondary: "{{ 'zastaralá data' if is_state(entity, 'on') else 'data aktuální' }}"
+            icon: mdi:timer-alert-outline
+            icon_color: "{{ 'red' if is_state(entity, 'on') else 'green' }}"
+
+          - type: custom:mushroom-template-card
+            entity: binary_sensor.energy_controller_tuv_stale
+            primary: TUV stale
+            secondary: "{{ 'zastaralá data' if is_state(entity, 'on') else 'data aktuální' }}"
+            icon: mdi:timer-alert-outline
+            icon_color: "{{ 'red' if is_state(entity, 'on') else 'green' }}"
+
+          - type: custom:mushroom-template-card
+            entity: binary_sensor.energy_controller_pool_stale
+            primary: Bazén stale
+            secondary: "{{ 'zastaralá data' if is_state(entity, 'on') else 'data aktuální' }}"
+            icon: mdi:timer-alert-outline
+            icon_color: "{{ 'red' if is_state(entity, 'on') else 'green' }}"
+
+          - type: custom:mushroom-template-card
+            entity: binary_sensor.energy_controller_heating_stale
+            primary: Vytápění stale
+            secondary: "{{ 'zastaralá data' if is_state(entity, 'on') else 'data aktuální' }}"
+            icon: mdi:timer-alert-outline
+            icon_color: "{{ 'red' if is_state(entity, 'on') else 'green' }}"
+
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Rozhodnutí
+            subtitle: Poslední read-only výstup Core2
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.energy_controller_active_priority
+            name: Aktivní priorita
+            icon: mdi:format-list-numbered
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.energy_controller_heating_mode
+            name: Režim vytápění
+            icon: mdi:heating-coil
+
+          - type: custom:mushroom-template-card
+            entity: sensor.energy_controller_heating_reason
+            primary: Důvod vytápění
+            secondary: "{{ states(entity) }}"
+            icon: mdi:text-box-outline
+            multiline_secondary: true
+
+          - type: custom:mushroom-entity-card
+            entity: sensor.energy_controller_pool_mode
+            name: Režim bazénu
+            icon: mdi:pool
+
+          - type: custom:mushroom-template-card
+            entity: sensor.energy_controller_pool_reason
+            primary: Důvod bazénu
+            secondary: "{{ states(entity) }}"
+            icon: mdi:text-box-outline
+            multiline_secondary: true

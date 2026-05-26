@@ -1,0 +1,15 @@
+{
+    "body": {
+        "contact": [
+            "mailto:petr.dolezel.box@gmail.com"
+        ],
+        "key": {
+            "e": "AQAB",
+            "kty": "RSA",
+            "n": "swpB6doQQwbxnkcd3V5w25gTga8VgRMAVonic5wucE_QxWdpnicmxGI9xra9qfuGJvlmQ6teR2iVSfrpJg8kbm-mb2GvTl8yIYgkPViDenMBDmmDwyMgVAzIMh8Kl6wOA0auv6qcWT_1KFs4_F8pTzyIRRnCwTnHNa8-GTTya1MATFhR5sdykBOx9wjgXZo9TloytGsjvc6Ro6TIqj4SVEetEGIrMCg037ncrpJLa7fGuG-59veu0RVK2fOjrK6OLPMrQvmZwg4cBxi99PmKNjy50Fd0xwJy5aEvMumB_8LNJ6wuwAXOhzc-LmJSafZfLUhOIDbywsSrI8PNyCwyUQ"
+        },
+        "status": "valid"
+    },
+    "terms_of_service": "https://letsencrypt.org/documents/LE-SA-v1.5-February-24-2025.pdf",
+    "uri": "https://acme-v02.api.letsencrypt.org/acme/acct/2401974327"
+}

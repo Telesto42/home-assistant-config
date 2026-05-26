@@ -1,0 +1,107 @@
+mqtt:
+  sensor:
+    - name: "Teplota akumulační nádrže"
+      unique_id: heat_controller_buf_current_temp
+      state_topic: "heat-controller/sensor/buf_current_temp"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      device:
+        identifiers: ["heat_controller"]
+        name: "Heat Controller"
+
+    - name: "Teplota TUV - nahoře"
+      unique_id: heat_controller_dhw_current_temp1
+      state_topic: "heat-controller/sensor/dhw_current_temp1"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      device:
+        identifiers: ["heat_controller"]
+        name: "Heat Controller"
+
+    - name: "Venkovní teplota"
+      unique_id: heat_controller_outdoor_temp
+      state_topic: "heat-controller/sensor/outdoor_temp"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      device:
+        identifiers: ["heat_controller"]
+        name: "Heat Controller"
+
+    - name: "Vnitřní teplota"
+      unique_id: heat_controller_indoor_temp
+      state_topic: "heat-controller/sensor/indoor_temp"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      device:
+        identifiers: ["heat_controller"]
+        name: "Heat Controller"
+
+    - name: "Teplota bazénu"
+      unique_id: heat_controller_pool_temp
+      state_topic: "heat-controller/sensor/pool_temp"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      device:
+        identifiers: ["heat_controller"]
+        name: "Heat Controller"
+
+    - name: "Výroba FVE"
+      unique_id: heat_controller_pv_power
+      state_topic: "heat-controller/sensor/pv_power"
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      device:
+        identifiers: ["heat_controller"]
+        name: "Heat Controller"
+
+    - name: "Spotřeba"
+      unique_id: heat_controller_home_consumption
+      state_topic: "heat-controller/sensor/home_consumption"
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      device:
+        identifiers: ["heat_controller"]
+        name: "Heat Controller"
+
+    - name: "Přetok"
+      unique_id: heat_controller_grid_export
+      state_topic: "heat-controller/sensor/grid_export"
+      unit_of_measurement: "W"
+      device_class: power
+      state_class: measurement
+      device:
+        identifiers: ["heat_controller"]
+        name: "Heat Controller"
+
+    - name: "Baterie"
+      unique_id: heat_controller_pv_battery_soc
+      state_topic: "heat-controller/sensor/pv_battery_soc"
+      unit_of_measurement: "%"
+      device_class: battery
+      state_class: measurement
+      device:
+        identifiers: ["heat_controller"]
+        name: "Heat Controller"
+
+  number:
+    - name: "Teplota TUV - max"
+      unique_id: heat_controller_dhw_max_temp
+      state_topic: "heat-controller/config/dhw_max_temp/state"
+      command_topic: "heat-controller/config/dhw_max_temp/set"
+      min: 40
+      max: 80
+      step: 0.5
+      unit_of_measurement: "°C"
+      mode: slider
+      retain: true
+      icon: mdi:thermometer-alert
+      device:
+        identifiers: ["heat_controller"]
+        name: "Heat Controller"

@@ -1,0 +1,252 @@
+- id: '1772307151338'
+  name: Ambient
+  entities:
+    light.kitchen_led:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6666
+      min_mireds: 150
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
+      - colorloop
+      - stop_colorloop
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect:
+      color_mode: color_temp
+      brightness: 184
+      color_temp_kelvin: 2000
+      color_temp: 500
+      hs_color:
+      - 30.601
+      - 94.547
+      rgb_color:
+      - 255
+      - 137
+      - 14
+      xy_color:
+      - 0.598
+      - 0.383
+      friendly_name: Kitchen LED
+      supported_features: 44
+      state: 'on'
+    light.wiz_rgbw_tunable_90732d:
+      min_color_temp_kelvin: 3000
+      max_color_temp_kelvin: 6500
+      min_mireds: 153
+      max_mireds: 333
+      effect_list:
+      - Alarm
+      - Bedtime
+      - Candlelight
+      - Christmas
+      - Cozy
+      - Cool white
+      - Daylight
+      - Diwali
+      - Deep dive
+      - Fall
+      - Fireplace
+      - Forest
+      - Focus
+      - Golden white
+      - Halloween
+      - Jungle
+      - Mojito
+      - Night light
+      - Ocean
+      - Party
+      - Pulse
+      - Pastel colors
+      - Plantgrowth
+      - Romance
+      - Relax
+      - Sunset
+      - Spring
+      - Summer
+      - Steampunk
+      - True colors
+      - TV time
+      - White
+      - Wake-up
+      - Warm white
+      - Rhythm
+      supported_color_modes:
+      - color_temp
+      - rgbw
+      effect:
+      color_mode: color_temp
+      brightness: 56
+      color_temp_kelvin: 4800
+      color_temp: 208
+      hs_color:
+      - 26.838
+      - 22.029
+      rgb_color:
+      - 255
+      - 224
+      - 199
+      xy_color:
+      - 0.379
+      - 0.352
+      rgbw_color:
+      icon: hue:pendant-long
+      friendly_name: Livingroom Lights
+      supported_features: 4
+      state: 'on'
+    light.showcase:
+      supported_color_modes:
+      - onoff
+      color_mode: onoff
+      icon: hue:room-closet
+      friendly_name: Vitrína
+      supported_features: 0
+      state: 'on'
+    light.closet:
+      supported_color_modes:
+      - onoff
+      color_mode: onoff
+      icon: mdi:wardrobe
+      friendly_name: Skříň a polička
+      supported_features: 0
+      state: 'on'
+    light.dining_lights_channel_1:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      icon: hue:pendant-muscari
+      friendly_name: Dining Lights
+      supported_features: 0
+      state: 'off'
+    light.kitchen_cabinet_lights:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      icon: hue:amarant
+      friendly_name: Kitchen Cabinet Lights
+      supported_features: 0
+      state: 'off'
+    light.kitchen_island_lights:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      icon: hue:ceiling-aurelle
+      friendly_name: Kitchen Island Lights
+      supported_features: 0
+      state: 'off'
+    light.kitchen_window_lights:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      icon: hue:ceiling-aurelle
+      friendly_name: Kitchen Window Lights
+      supported_features: 0
+      state: 'off'
+    light.kitchen_lights:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      icon: hue:ceiling-aurelle
+      friendly_name: Kitchen Lights
+      supported_features: 0
+      state: 'off'
+    light.livingroom_lamp:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6500
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 255
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      - 0
+      - 83.5
+      rgb_color:
+      - 255
+      - 42
+      - 42
+      xy_color:
+      - 0.674
+      - 0.301
+      friendly_name: Livingroom Lamp
+      supported_features: 0
+      state: 'on'
+    light.livingroom_lamp_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 7042
+      min_mireds: 142
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
+      - colorloop
+      - stop_colorloop
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect:
+      color_mode: xy
+      brightness: 255
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      - 240.337
+      - 69.804
+      rgb_color:
+      - 78
+      - 77
+      - 255
+      xy_color:
+      - 0.164
+      - 0.083
+      friendly_name: Livingroom Lamp
+      supported_features: 44
+      state: 'on'
+    light.hallway1_lights:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      icon: hue:ceiling-aurelle
+      friendly_name: Downstairs Hallway Lights
+      supported_features: 0
+      state: 'off'
+  icon: mdi:television-ambient-light
+  metadata:
+    light.kitchen_led:
+      entity_only: true
+    light.wiz_rgbw_tunable_90732d:
+      entity_only: true
+    light.showcase:
+      entity_only: true
+    light.closet:
+      entity_only: true
+    light.dining_lights_channel_1:
+      entity_only: true
+    light.kitchen_cabinet_lights:
+      entity_only: true
+    light.kitchen_island_lights:
+      entity_only: true
+    light.kitchen_window_lights:
+      entity_only: true
+    light.kitchen_lights:
+      entity_only: true
+    light.livingroom_lamp:
+      entity_only: true
+    light.livingroom_lamp_2:
+      entity_only: true
+    light.hallway1_lights:
+      entity_only: true

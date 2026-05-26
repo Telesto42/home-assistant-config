@@ -1,0 +1,141 @@
+# Energy controller - Home Assistant -> MQTT TUV state package
+#
+# Purpose:
+# Publishes one compact JSON package for M5Stack Core2:
+#
+#   home/tuv/state
+#
+# Before use:
+# Replace the example entity IDs below with the real entities from your Home Assistant.
+
+automation:
+  - id: energy_controller_publish_tuv_state
+    alias: "Energy Controller - Publikovat stav TUV"
+    description: "Publikuje stav zásobníku TUV, tepelného čerpadla, elektrické patrony a cirkulace pro Core2 controller."
+    mode: restart
+    triggers:
+      # Heartbeat so Core2 can detect fresh data even if values do not change.
+      - trigger: time_pattern
+        seconds: "/30"
+
+      # TODO: replace these entity IDs with real HA entities.
+      - trigger: state
+        entity_id:
+          - sensor.tasmota_ds18b20_temperature
+          - sensor.todo_tuv_current_target_temp
+          - sensor.todo_tuv_heatpump_state
+          - switch.sonoff_hot_water_heater
+          - switch.hot_water_pump
+          - sensor.todo_tuv_circulation_return_temp
+          - binary_sensor.house_occupied
+          - binary_sensor.kitchen_multisensor_motion_sensor_status
+          - binary_sensor.downstairs_bathroom_multisensor_motion_sensor_status
+          - binary_sensor.upstairs_bathroom_multisensor_motion_sensor_status
+
+    conditions: []
+
+    variables:
+      # TODO: replace these entity IDs with real HA entities.
+      # tank_temp is the temperature sensor roughly in the middle of the 300l TUV tank.
+      tank_temp_entity: sensor.tasmota_ds18b20_temperature
+      current_target_temp_entity: sensor.todo_tuv_current_target_temp
+      heatpump_state_entity: sensor.todo_tuv_heatpump_state
+      electric_heater_entity: switch.sonoff_hot_water_heater
+      circulation_pump_entity: switch.hot_water_pump
+      circulation_return_temp_entity: sensor.todo_tuv_circulation_return_temp
+      occupancy_home_entity: binary_sensor.house_occupied
+      kitchen_motion_entity: binary_sensor.kitchen_multisensor_motion_sensor_status
+      downstairs_bathroom_motion_entity: binary_sensor.downstairs_bathroom_multisensor_motion_sensor_status
+      upstairs_bathroom_motion_entity: binary_sensor.upstairs_bathroom_multisensor_motion_sensor_status
+
+      electric_heater_mechanical_thermostat_c: 62
+
+      tank_temp_available: "{{ states(tank_temp_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      current_target_temp_available: "{{ states(current_target_temp_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      heatpump_state_available: "{{ states(heatpump_state_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      electric_heater_state_available: "{{ states(electric_heater_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      circulation_pump_state_available: "{{ states(circulation_pump_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+      circulation_return_temp_available: "{{ states(circulation_return_temp_entity) not in ['unknown', 'unavailable', 'none', ''] }}"
+
+      tank_temp_c: "{{ (states(tank_temp_entity) | float) if tank_temp_available else none }}"
+      current_target_temp_c: "{{ (states(current_target_temp_entity) | float) if current_target_temp_available else none }}"
+      heatpump_state: "{{ states(heatpump_state_entity) if heatpump_state_available else 'todo' }}"
+      electric_heater_state: "{{ states(electric_heater_entity) if electric_heater_state_available else 'todo' }}"
+      circulation_pump_state: "{{ states(circulation_pump_entity) if circulation_pump_state_available else 'todo' }}"
+      circulation_return_temp_c: "{{ (states(circulation_return_temp_entity) | float) if circulation_return_temp_available else none }}"
+      occupancy_home: "{{ is_state(occupancy_home_entity, 'on') }}"
+      motion_kitchen: "{{ is_state(kitchen_motion_entity, 'on') }}"
+      motion_downstairs_bathroom: "{{ is_state(downstairs_bathroom_motion_entity, 'on') }}"
+      motion_upstairs_bathroom: "{{ is_state(upstairs_bathroom_motion_entity, 'on') }}"
+
+      source_states:
+        tank_temp: "{{ states(tank_temp_entity) }}"
+        current_target_temp: "{{ states(current_target_temp_entity) }}"
+        heatpump_state: "{{ states(heatpump_state_entity) }}"
+        electric_heater_state: "{{ states(electric_heater_entity) }}"
+        circulation_pump_state: "{{ states(circulation_pump_entity) }}"
+        circulation_return_temp: "{{ states(circulation_return_temp_entity) }}"
+        occupancy_home: "{{ states(occupancy_home_entity) }}"
+        motion_kitchen: "{{ states(kitchen_motion_entity) }}"
+        motion_downstairs_bathroom: "{{ states(downstairs_bathroom_motion_entity) }}"
+        motion_upstairs_bathroom: "{{ states(upstairs_bathroom_motion_entity) }}"
+
+      source_available: >-
+        {{
+          tank_temp_available
+          and source_states.occupancy_home not in ['unknown', 'unavailable', 'none', '']
+        }}
+      publish_debug_sources: "{{ is_state('input_boolean.energy_controller_publish_debug_sources', 'on') }}"
+
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: home/tuv/state
+          retain: true
+          qos: 0
+          payload: >-
+            {% set state_payload = {
+              "tank_temp_c": tank_temp_c,
+              "tank_temp_available": tank_temp_available,
+              "tank_temp_sensor_position": "middle",
+              "tank_volume_l": 300,
+              "current_target_temp_c": current_target_temp_c,
+              "current_target_temp_available": current_target_temp_available,
+              "heatpump_state": heatpump_state,
+              "heatpump_state_available": heatpump_state_available,
+              "electric_heater_state": electric_heater_state,
+              "electric_heater_state_available": electric_heater_state_available,
+              "electric_heater_control": "on_off_only",
+              "electric_heater_mechanical_thermostat_c": electric_heater_mechanical_thermostat_c,
+              "circulation_pump_state": circulation_pump_state,
+              "circulation_pump_state_available": circulation_pump_state_available,
+              "circulation_return_temp_c": circulation_return_temp_c,
+              "circulation_return_temp_available": circulation_return_temp_available,
+              "occupancy_home": occupancy_home,
+              "motion": {
+                "kitchen": motion_kitchen,
+                "downstairs_bathroom": motion_downstairs_bathroom,
+                "upstairs_bathroom": motion_upstairs_bathroom
+              },
+              "source_available": source_available,
+              "published_at": now().isoformat()
+            } %}
+            {{ dict(state_payload, source_states=source_states) | to_json if publish_debug_sources else state_payload | to_json }}
+
+  - id: energy_controller_publish_tuv_availability
+    alias: "Energy Controller - Publikovat dostupnost publikátoru TUV"
+    description: "Publikuje heartbeat pro HA publikátor TUV."
+    mode: single
+    triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: time_pattern
+        minutes: "/1"
+    conditions: []
+    actions:
+      - action: mqtt.publish
+        data:
+          topic: home/tuv/availability
+          payload: "online"
+          retain: true
+          qos: 0

@@ -1,0 +1,5 @@
+secrets.yaml
+.storage/
+home-assistant_v2.db
+*.db
+*.log
