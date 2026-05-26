@@ -16,7 +16,7 @@
         "last_seen": "2026-05-26T10:09:37+02:00"
     },
     "0x881a14fffe02a3f4": {
-        "linkquality": 76,
+        "linkquality": 81,
         "last_seen": "2026-05-26T10:14:34+02:00"
     },
     "0x04cd15fffe0c3cc2": {
@@ -200,9 +200,9 @@
     },
     "0x00158d000950c140": {
         "linkquality": 140,
-        "voltage": 3045,
+        "voltage": 3035,
         "battery": 100,
-        "device_temperature": 24,
+        "device_temperature": 25,
         "power_outage_count": 18,
         "trigger_count": 0,
         "contact": true,
@@ -228,7 +228,7 @@
         "child_lock": "UNLOCK",
         "current": 0,
         "linkquality": 90,
-        "voltage": 237,
+        "voltage": 238,
         "energy": 1.27,
         "power": 0,
         "last_seen": "2026-05-26T10:16:23+02:00",
@@ -376,16 +376,16 @@
     },
     "0x00124b001f915791": {
         "temperature": 18.07,
-        "humidity": 69.25,
+        "humidity": 69.14,
         "voltage": 2900,
         "battery": 67,
         "last_seen": "2026-05-26T10:16:38+02:00",
         "linkquality": 81
     },
     "0x00158d0007e497ff": {
-        "temperature": 25.19,
-        "humidity": 50.62,
-        "pressure": 981.9,
+        "temperature": 25.44,
+        "humidity": 50.64,
+        "pressure": 981.7,
         "last_seen": "2026-05-26T10:05:46+02:00",
         "linkquality": 81,
         "voltage": 2975,
@@ -459,12 +459,12 @@
         "linkquality": 95
     },
     "0x142d41fffeaf5fcf": {
-        "linkquality": 81,
+        "linkquality": 36,
         "last_seen": "2026-05-26T10:15:19+02:00"
     },
     "0x54ef441000632659": {
-        "voltage": 2920,
-        "battery": 47,
+        "voltage": 2919,
+        "battery": 46,
         "detection_interval": 30,
         "motion_sensitivity": "medium",
         "trigger_indicator": false,
